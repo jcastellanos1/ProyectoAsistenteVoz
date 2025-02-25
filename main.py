@@ -5,12 +5,12 @@ import sounddevice as sd
 import vosk
 import json
 import threading
-import webbrowser  # Módulo para abrir URLs
-import subprocess  # Módulo para abrir aplicaciones
+import subprocess
 import eel
+import webbrowser
 
 # Ruta al modelo en español
-MODEL_ES = r"D:\Proyectos\vosk-model-small-es-0.42"
+MODEL_ES = r"C:\Users\jose5\Desktop\vosk-model-es-0.42"
 
 # Cargar el modelo
 if not os.path.exists(MODEL_ES):
@@ -32,7 +32,7 @@ def callback(indata, frames, time, status):
     q.put(bytes(indata))
 
 def abrir_aplicacion(comando):
-    """Abre aplicaciones o URLs según el comando de voz."""
+    """Abre aplicaciones según el comando de voz."""
     aplicaciones = {
         "calculadora": "calc.exe",
         "bloc de notas": "notepad.exe",
@@ -40,7 +40,7 @@ def abrir_aplicacion(comando):
         "cmd": "cmd.exe",
         "spotify": "spotify.exe",
         "navegador": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",  # Cambia según tu navegador
-        "rolona": "https://www.youtube.com/watch?v=nnrp3drhw0k?t=90",  # Inicia en el minuto 1:30
+        "rola": "https://www.youtube.com/watch?v=nnrp3drhw0k?t=90",  # Inicia en el minuto 1:30
         "lobo": "https://www.youtube.com/watch?v=ckkL7-KPD_E&t=48"  # Inicia en el segundo 48
     }
 
@@ -74,7 +74,7 @@ def reconocer_voz():
                 if texto:
                     print(f"Has dicho: {texto}")
                     eel.updateText(f"Has dicho: {texto}")  # Mostrar en la interfaz
-                    abrir_aplicacion(texto)  # Intentar abrir una aplicación o URL
+                    abrir_aplicacion(texto)  # Intentar abrir una aplicación
             else:
                 partial_result = json.loads(rec_es.PartialResult())
                 partial_text = partial_result.get("partial", "")
@@ -87,9 +87,21 @@ def start_listening():
     """Iniciar el reconocimiento de voz en un hilo separado."""
     threading.Thread(target=reconocer_voz, daemon=True).start()
 
+
 if __name__ == "__main__":
     try:
-        # Iniciar la aplicación Eel
-        eel.start('index.html', size=(600, 400))
+        # Obtener tamaño de pantalla
+        import pyautogui
+        screen_width, screen_height = pyautogui.size()
+        
+        # Definir el tamaño de la ventana
+        win_width, win_height = 500, 700
+        
+        # Calcular la posición centrada
+        pos_x = (screen_width - win_width) // 2
+        pos_y = (screen_height - win_height) // 2
+
+        # Iniciar Eel con la ventana centrada
+        eel.start("index.html", mode="chrome", size=(win_width, win_height), position=(pos_x, pos_y))
     except KeyboardInterrupt:
         print("\nPrograma terminado.")
