@@ -10,7 +10,7 @@ import eel
 import webbrowser
 
 # Ruta al modelo en español
-MODEL_ES = r"C:\Users\jose5\Desktop\vosk-model-es-0.42"
+MODEL_ES = r"D:\Proyectos\vosk-model-small-es-0.42"
 
 # Cargar el modelo
 if not os.path.exists(MODEL_ES):
@@ -39,9 +39,12 @@ def abrir_aplicacion(comando):
         "explorador": "explorer.exe",
         "cmd": "cmd.exe",
         "spotify": "spotify.exe",
+        "epic games":"D:\Epic\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe",
         "navegador": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",  # Cambia según tu navegador
-        "rola": "https://www.youtube.com/watch?v=nnrp3drhw0k?t=90",  # Inicia en el minuto 1:30
-        "lobo": "https://www.youtube.com/watch?v=ckkL7-KPD_E&t=48"  # Inicia en el segundo 48
+        "rola": "https://www.youtube.com/watch?v=nnrp3drhw0k&t=90",  # Inicia en el minuto 1:30
+        "lobo": "https://www.youtube.com/watch?v=ckkL7-KPD_E&t=48",  # Inicia en el segundo 48
+        "criminal":"https://www.youtube.com/watch?v=VqEbCxg2bNI&t=80"
+        
     }
 
     for clave, app in aplicaciones.items():
