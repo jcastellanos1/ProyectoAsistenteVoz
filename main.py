@@ -39,12 +39,11 @@ def abrir_aplicacion(comando):
         "explorador": "explorer.exe",
         "cmd": "cmd.exe",
         "spotify": "spotify.exe",
-        "epic games":"D:\Epic\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe",
-        "navegador": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",  # Cambia según tu navegador
+        "epic games": r"D:\Epic\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe",
+        "navegador": r"C:\Program Files\Google\Chrome\Application\chrome.exe",  # Cambia según tu navegador
         "rola": "https://www.youtube.com/watch?v=nnrp3drhw0k&t=90",  # Inicia en el minuto 1:30
         "lobo": "https://www.youtube.com/watch?v=ckkL7-KPD_E&t=48",  # Inicia en el segundo 48
-        "criminal":"https://www.youtube.com/watch?v=VqEbCxg2bNI&t=80"
-        
+        "criminal": "https://www.youtube.com/watch?v=VqEbCxg2bNI&t=80"
     }
 
     for clave, app in aplicaciones.items():
@@ -53,7 +52,7 @@ def abrir_aplicacion(comando):
                 # Si es una URL, abre en el navegador predeterminado
                 print(f"Abriendo URL: {app}")
                 webbrowser.open(app)  # Abrir la URL en el navegador
-                eel.updateText(f"Abriendo URL: {app}")  # Notificar en la interfaz
+                eel.updateText(f"Reproduciendo {clave}...")  # Mensaje personalizado en la interfaz
             else:
                 # Si es una aplicación, abre normalmente
                 print(f"Abriendo {clave}...")
@@ -90,7 +89,6 @@ def start_listening():
     """Iniciar el reconocimiento de voz en un hilo separado."""
     threading.Thread(target=reconocer_voz, daemon=True).start()
 
-
 if __name__ == "__main__":
     try:
         # Obtener tamaño de pantalla
@@ -108,3 +106,4 @@ if __name__ == "__main__":
         eel.start("index.html", mode="chrome", size=(win_width, win_height), position=(pos_x, pos_y))
     except KeyboardInterrupt:
         print("\nPrograma terminado.")
+        
