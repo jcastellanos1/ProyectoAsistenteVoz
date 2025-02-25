@@ -4,7 +4,6 @@ import os
 from dotenv import load_dotenv
 import time
 
-# Cargar credenciales desde .env
 load_dotenv()
 
 class SpotifyControl:
@@ -12,23 +11,26 @@ class SpotifyControl:
         self.client_id = os.getenv("SPOTIPY_CLIENT_ID")
         self.client_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
         self.redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
-        self.scope = "user-read-playback-state user-modify-playback-state user-read-currently-playing"
-        
+        self.scope = "user-read-playback-state user-modify-playback-state user-read-currently-playing user-read-private"
+
         self.sp_oauth = SpotifyOAuth(
             client_id=self.client_id,
             client_secret=self.client_secret,
             redirect_uri=self.redirect_uri,
             scope=self.scope
         )
+        
         self.token_info = None
         self.sp = None
         self.last_token_refresh = 0
+
+        self.user_id = self.get_user_id()  # 🔹 Asignar automáticamente el user_id
 
     def get_token(self):
         """Obtiene y refresca el token si es necesario."""
         if not self.token_info or time.time() - self.last_token_refresh > 3500:
             print("Refrescando token de Spotify...")
-            self.token_info = self.sp_oauth.get_cached_token()
+            self.token_info = self.sp_oauth.get_access_token(as_dict=True)
             if not self.token_info or 'access_token' not in self.token_info:
                 print("Error: No se encontró un token válido.")
                 return False
@@ -43,45 +45,53 @@ class SpotifyControl:
         else:
             print("Error de autenticación en Spotify")
 
+    def get_user_id(self):
+        """Obtiene el ID del usuario autenticado en Spotify."""
+        self.authenticate()
+        if self.sp:
+            user_data = self.sp.current_user()
+            return user_data.get("id", "default_user")  # Si falla, usa "default_user"
+        return "default_user"
+
     def start_playback(self):
         """Reanuda la reproducción."""
         self.authenticate()
         if self.sp:
             self.sp.start_playback()
-            return "▶️ Reproducción iniciada"
-        return " No se pudo iniciar la reproducción"
+            return f"[{self.user_id}] ▶️ Reproducción iniciada"
+        return f"[{self.user_id}]  No se pudo iniciar la reproducción"
 
     def pause_playback(self):
         """Pausa la reproducción."""
         self.authenticate()
         if self.sp:
             self.sp.pause_playback()
-            return "⏸️ Reproducción pausada"
-        return " No se pudo pausar la reproducción"
+            return f"[{self.user_id}] ⏸️ Reproducción pausada"
+        return f"[{self.user_id}]  No se pudo pausar la reproducción"
 
     def next_track(self):
         """Salta a la siguiente canción."""
         self.authenticate()
         if self.sp:
             self.sp.next_track()
-            return "⏭️ Siguiente canción"
-        return " No se pudo cambiar de canción"
+            return f"[{self.user_id}] ⏭️ Siguiente canción"
+        return f"[{self.user_id}]  No se pudo cambiar de canción"
 
     def previous_track(self):
         """Vuelve a la canción anterior."""
         self.authenticate()
         if self.sp:
             self.sp.previous_track()
-            return "⏮️ Canción anterior"
-        return "No se pudo regresar de canción"
+            return f"[{self.user_id}] ⏮️ Canción anterior"
+        return f"[{self.user_id}]  No se pudo regresar de canción"
 
     def set_volume(self, volume):
         """Ajusta el volumen (0-100)."""
         self.authenticate()
         if self.sp:
             self.sp.volume(volume)
-            return f"🔊 Volumen ajustado a {volume}%"
-        return " No se pudo ajustar el volumen"
+            return f"[{self.user_id}] 🔊 Volumen ajustado a {volume}%"
+        return f"[{self.user_id}]  No se pudo ajustar el volumen"
 
     def get_current_track(self):
         """Obtiene la canción en reproducción."""
@@ -89,5 +99,5 @@ class SpotifyControl:
         if self.sp:
             track = self.sp.current_playback()
             if track and track['item']:
-                return f"🎵 Reproduciendo: {track['item']['name']} - {track['item']['artists'][0]['name']}"
-        return " No hay música en reproducción"
+                return f"[{self.user_id}] 🎵 Reproduciendo: {track['item']['name']} - {track['item']['artists'][0]['name']}"
+        return f"[{self.user_id}]  No hay música en reproducción"
