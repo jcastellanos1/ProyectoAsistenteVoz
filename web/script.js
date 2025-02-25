@@ -15,6 +15,10 @@ document.addEventListener("DOMContentLoaded", function () {
             document.body.classList.remove("dark-mode");
             localStorage.setItem("theme", "light");
         }
+
+        // Reproducir audio cuando se cambia el estado del interruptor
+        var audio = document.getElementById("audio");
+        audio.play();
     });
 
     // Iniciar el reconocimiento de voz automáticamente
