@@ -10,9 +10,10 @@ import eel
 import webbrowser
 from flask import Flask, jsonify, request
 from spotify_control import SpotifyControl  # Importar la clase de control de Spotify
+from word2number import w2n
 
 # Ruta al modelo en español
-MODEL_ES = r"C:\Users\jose5\Desktop\vosk-model-small-es-0.42"
+MODEL_ES = r"D:\Proyectos\vosk-model-small-es-0.42"
 
 # Cargar el modelo
 if not os.path.exists(MODEL_ES):
@@ -38,6 +39,13 @@ def callback(indata, frames, time, status):
     if status:
         print(status, file=sys.stderr)
     q.put(bytes(indata))
+
+def convertir_numero(texto):
+    try:
+        return w2n.word_to_num(texto)  # Convierte "cincuenta" → 50
+    except ValueError:
+        return None
+    
 
 def abrir_aplicacion(comando):
     """Ejecuta acciones según el comando de voz."""
@@ -94,17 +102,15 @@ def abrir_aplicacion(comando):
         spotify.previous_track()
         eel.updateText("Canción anterior")
     elif "volumen" in comando:
-        try:
-            vol = int([word for word in comando.split() if word.isdigit()][0])
+        palabras = comando.split()  # Divide el comando en palabras
+        numeros = [convertir_numero(word) for word in palabras if convertir_numero(word) is not None]
+
+        if numeros:  # Si encontró un número válido
+            vol = numeros[0]
             spotify.set_volume(vol)
             eel.updateText(f"Volumen ajustado a {vol}%")
-        except (IndexError, ValueError):
+        else:
             eel.updateText("No entendí el nivel de volumen.")
-    elif "qué suena" in comando:
-        track_info = spotify.get_current_track()
-        eel.updateText(track_info)
-    else:
-        eel.updateText("No reconocí el comando.")
 
 def reconocer_voz():
     """Reconocer voz en tiempo real."""
