@@ -1,5 +1,5 @@
 from flask import Flask, redirect, request, session, url_for
-from spotify_control import SpotifyControl
+from modules.spotify_control import SpotifyControl
 import os
 import threading
 
