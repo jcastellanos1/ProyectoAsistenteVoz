@@ -40,6 +40,20 @@ def callback(indata, frames, time, status):
     q.put(bytes(indata))
 
 def abrir_aplicacion(comando):
+    """Ejecuta acciones según el comando de voz."""
+
+    if "reproduce" in comando or "pon" in comando:
+        # Extraer el nombre de la canción del comando
+        song_name = comando.replace("reproduce", "").replace("pon", "").strip()
+        if song_name:
+            respuesta = spotify.start_playback(song_name)
+            eel.updateText(respuesta)
+        else:
+            eel.updateText(" No entendí qué canción quieres reproducir.")
+    
+    elif "spotify" in comando:
+        spotify.start_playback()
+        eel.updateText(" Abriendo Spotify...")
     """Abre aplicaciones según el comando de voz."""
     aplicaciones = {
         "calculadora": "calc.exe",
