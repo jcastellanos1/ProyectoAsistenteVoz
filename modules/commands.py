@@ -4,6 +4,7 @@ import webbrowser
 import psutil  # Para cerrar aplicaciones
 from word2number import w2n
 from modules.spotify_control import SpotifyControl
+from modules.weather import get_weather, get_forecast
 
 spotify = SpotifyControl()
 
@@ -20,6 +21,26 @@ APLICACIONES = {
     "lobo": {"url": "https://www.youtube.com/watch?v=ckkL7-KPD_E&t=48"},
     "criminal": {"url": "https://www.youtube.com/watch?v=VqEbCxg2bNI&t=80"}
 }
+
+def clima_comando(city="Santa Lucía Cotzumalguapa, GT"):
+    """Comando para obtener el clima actual de una ciudad."""
+    print(get_weather(city))  # Muestra el clima actual
+    eel.updateResponse(get_weather(city))
+
+def pronostico_comando(city="Santa Lucía Cotzumalguapa, GT", days=3):
+    """Comando para obtener el pronóstico de clima para los próximos días."""
+    print(get_forecast(city, days))  # Muestra el pronóstico para los próximos días
+    eel.updateResponse(get_forecast(city, days))
+
+def clima_ciudad_comando(city):
+    """Comando para obtener el clima actual de una ciudad específica."""
+    print(get_weather(city))  # Muestra el clima actual de la ciudad especificada
+    eel.updateResponse(get_weather(city))
+
+def pronostico_ciudad_comando(city, days=3):
+    """Comando para obtener el pronóstico de clima de una ciudad específica."""
+    print(get_forecast(city, days))  # Muestra el pronóstico para los próximos días de la ciudad especificada
+    eel.updateResponse(get_forecast(city, days))
 
 def convertir_numero(texto):
     """Convierte palabras a números (Ej: 'cincuenta' → 50)."""
@@ -82,7 +103,7 @@ def controlar_musica(comando):
                 eel.updateResponse(f"Volumen ajustado a {vol}%")
             else:
                 eel.updateResponse("No entendí el nivel de volumen.")
-        elif "qué suena" in comando:
+        elif "que suena" in comando:
             track_info = spotify.get_current_track()
             if track_info:
                 nombre_cancion = track_info.split("]")[-1].strip()
@@ -120,5 +141,49 @@ def ejecutar_comando(comando):
         nombre_app = comando.replace("abrir", "").strip()
         abrir_aplicacion(nombre_app)
         return
+    
+    
+    # Comando para "clima mañana" o "pronóstico mañana"
+    if "clima" in comando and "mañana" in comando:
+        # Limpiar el comando para extraer la ciudad correctamente
+        ciudad = comando.replace("clima", "").replace("mañana", "").replace("pronóstico", "").strip()
+
+        # Revisar si se ha extraído una ciudad
+        if ciudad:
+            print(f"Ciudad extraída: {ciudad}")  # Para depuración, mostrar la ciudad extraída
+            pronostico_ciudad_comando(ciudad, 1)  # Obtener pronóstico para 1 día (mañana)
+        else:
+            print("No se pudo extraer la ciudad.")  # Para depuración
+            pronostico_comando(days=1)  # Pronóstico para 1 día con ciudad predeterminada
+        return
+
+    # Comando para "cuál es el clima en X ciudad"
+    if "cuál es el clima en" in comando:
+        ciudad = comando.replace("cuál es el clima en", "").strip()
+        clima_ciudad_comando(ciudad)
+        return
+
+    # Comando para "clima hoy" o "pronóstico para X ciudad"
+    if "cual es" in comando and "clima" in comando:
+        ciudad = comando.replace("cual es", "").replace("clima", "").strip()
+        clima_ciudad_comando(ciudad)  # Clima de una ciudad específica
+        return
+        
+    if "clima" in comando:
+        if "hoy" in comando:
+            clima_comando()  # Obtiene el clima hoy de la ciudad predeterminada
+        else:
+            ciudad = comando.replace("clima", "").strip()
+            clima_ciudad_comando(ciudad)
+        return
+
+    if "pronóstico" in comando:
+        if "para" in comando:
+            ciudad = comando.split("para")[-1].strip()
+            pronostico_ciudad_comando(ciudad)  # Pronóstico para una ciudad específica
+        else:
+            pronostico_comando()  # Pronóstico de los próximos días para la ciudad predeterminada
+        return
+    
 
     controlar_musica(comando)
