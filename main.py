@@ -12,7 +12,7 @@ from flask import Flask, jsonify, request
 from spotify_control import SpotifyControl  # Importar la clase de control de Spotify
 
 # Ruta al modelo en español
-MODEL_ES = r"D:\Proyectos\vosk-model-small-es-0.42"
+MODEL_ES = r"C:\Users\jose5\Desktop\vosk-model-small-es-0.42"
 
 # Cargar el modelo
 if not os.path.exists(MODEL_ES):
