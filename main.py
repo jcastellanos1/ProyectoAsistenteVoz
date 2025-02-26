@@ -13,7 +13,7 @@ from spotify_control import SpotifyControl  # Importar la clase de control de Sp
 from word2number import w2n
 
 # Ruta al modelo en español
-MODEL_ES = r"C:\Users\jose5\Desktop\vosk-model-small-es-0.42"
+MODEL_ES = r"D:\Proyectos\vosk-model-small-es-0.42"
 
 # Cargar el modelo
 if not os.path.exists(MODEL_ES):
@@ -110,6 +110,14 @@ def abrir_aplicacion(comando):
         else:
             eel.updateResponse("No entendí el nivel de volumen.")
 
+    elif "que suena" in comando:
+        track_info = spotify.get_current_track()
+        if track_info:
+            # Limpiar el texto reconocido (eliminar códigos o caracteres no deseados)
+            nombre_cancion = track_info.split("]")[-1].strip()  # Eliminar todo antes del último "]"
+            eel.updateResponse(f" {nombre_cancion}")  # Mostrar solo el nombre de la canción
+        else:
+            eel.updateResponse("No se pudo obtener la información de la canción.")
 
 def reconocer_voz():
     """Reconocer voz en tiempo real."""
