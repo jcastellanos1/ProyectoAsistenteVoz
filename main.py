@@ -10,9 +10,10 @@ import eel
 import webbrowser
 from flask import Flask, jsonify, request
 from spotify_control import SpotifyControl  # Importar la clase de control de Spotify
+from word2number import w2n
 
 # Ruta al modelo en español
-MODEL_ES = r"D:\Proyectos\vosk-model-small-es-0.42"
+MODEL_ES = r"C:\Users\jose5\Desktop\vosk-model-small-es-0.42"
 
 # Cargar el modelo
 if not os.path.exists(MODEL_ES):
@@ -39,82 +40,75 @@ def callback(indata, frames, time, status):
         print(status, file=sys.stderr)
     q.put(bytes(indata))
 
+def convertir_numero(texto):
+    try:
+        return w2n.word_to_num(texto)  # Convierte "cincuenta" → 50
+    except ValueError:
+        return None
+    
+
 def abrir_aplicacion(comando):
     """Ejecuta acciones según el comando de voz."""
+    eel.updateText(f"Has dicho: {comando}")  # Mostrar lo que el asistente escucha
 
     if "reproduce" in comando or "pon" in comando:
-        # Extraer el nombre de la canción del comando
         song_name = comando.replace("reproduce", "").replace("pon", "").strip()
         if song_name:
             respuesta = spotify.start_playback(song_name)
-            eel.updateText(respuesta)
+            eel.updateResponse(respuesta)  # Mostrar y hablar la respuesta
         else:
-            eel.updateText(" No entendí qué canción quieres reproducir.")
+            eel.updateResponse("No entendí qué canción quieres reproducir.")
     
     elif "spotify" in comando:
         spotify.start_playback()
-        eel.updateText(" Abriendo Spotify...")
-    
-    elif "pausa" in comando:
+        eel.updateResponse("Abriendo Spotify...")
+
+    aplicaciones = {
+        "calculadora": "calc.exe",
+        "bloc de notas": "notepad.exe",
+        "explorador": "explorer.exe",
+        "cmd": "cmd.exe",
+        "spotify": "spotify.exe",
+        "epic games": r"D:\Epic\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe",
+        "navegador": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        "rola": "https://www.youtube.com/watch?v=nnrp3drhw0k&t=90",
+        "lobo": "https://www.youtube.com/watch?v=ckkL7-KPD_E&t=48",
+        "criminal": "https://www.youtube.com/watch?v=VqEbCxg2bNI&t=80"
+    }
+
+    for clave, app in aplicaciones.items():
+        if clave in comando:
+            if app.startswith("http"):
+                webbrowser.open(app)
+                eel.updateResponse(f"Reproduciendo {clave}...")
+            else:
+                eel.updateResponse(f"Abriendo {clave}...")
+                subprocess.run(app, shell=True)
+                #eel.updateResponse(f"Abriendo {clave}...")
+            return  # Evita seguir evaluando otros comandos
+
+    if "pausa" in comando:
         spotify.pause_playback()
-        eel.updateText("Música pausada")
-    
+        eel.updateResponse("Música pausada")
     elif "reproducir" in comando:
         spotify.start_playback()
-        eel.updateText("Reproduciendo música")
-    
+        eel.updateResponse("Reproduciendo música")
     elif "siguiente" in comando:
         spotify.next_track()
-        eel.updateText("Siguiente canción")
-    
+        eel.updateResponse("Siguiente canción")
     elif "anterior" in comando:
         spotify.previous_track()
-        eel.updateText("Canción anterior")
-    
+        eel.updateResponse("Canción anterior")
     elif "volumen" in comando:
-        try:
-            vol = int([word for word in comando.split() if word.isdigit()][0])
-            spotify.set_volume(vol)
-            eel.updateText(f"Volumen ajustado a {vol}%")
-        except (IndexError, ValueError):
-            eel.updateText("No entendí el nivel de volumen.")
-    
-    elif "que suena" in comando:
-        track_info = spotify.get_current_track()
-        if track_info:
-            # Limpiar el texto reconocido (eliminar códigos o caracteres no deseados)
-            nombre_cancion = track_info.split("]")[-1].strip()  # Eliminar todo antes del último "]"
-            eel.updateText(f" {nombre_cancion}")  # Mostrar solo el nombre de la canción
-        else:
-            eel.updateText("No se pudo obtener la información de la canción.")
-    
-    else:
-        # Comandos para abrir aplicaciones
-        aplicaciones = {
-            "calculadora": "calc.exe",
-            "bloc de notas": "notepad.exe",
-            "explorador": "explorer.exe",
-            "cmd": "cmd.exe",
-            "epic games": r"D:\Epic\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe",
-            "navegador": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-            "rola": "https://www.youtube.com/watch?v=nnrp3drhw0k&t=90",
-            "lobo": "https://www.youtube.com/watch?v=ckkL7-KPD_E&t=48",
-            "criminal": "https://www.youtube.com/watch?v=VqEbCxg2bNI&t=80"
-        }
+        palabras = comando.split()
+        numeros = [convertir_numero(word) for word in palabras if convertir_numero(word) is not None]
 
-        for clave, app in aplicaciones.items():
-            if clave in comando:
-                if app.startswith("http"):
-                    print(f"Abriendo URL: {app}")
-                    webbrowser.open(app)
-                    eel.updateText(f"Reproduciendo {clave}...")
-                else:
-                    print(f"Abriendo {clave}...")
-                    subprocess.run(app, shell=True)
-                    eel.updateText(f"Abriendo {clave}...")
-                return
-        
-        eel.updateText("No reconocí el comando.")
+        if numeros:
+            vol = numeros[0]
+            spotify.set_volume(vol)
+            eel.updateResponse(f"Volumen ajustado a {vol}%")
+        else:
+            eel.updateResponse("No entendí el nivel de volumen.")
 
 
 def reconocer_voz():

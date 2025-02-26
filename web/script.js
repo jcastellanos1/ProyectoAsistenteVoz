@@ -59,3 +59,31 @@ async function startVisualizer() {
     }
 }
 startVisualizer();
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const textoElement = document.getElementById("texto");
+    const respuestaElement = document.getElementById("respuesta");
+    const synth = window.speechSynthesis;
+
+    function hablarTexto(mensaje) {
+        if (mensaje && synth.speaking === false) {
+            const utterance = new SpeechSynthesisUtterance(mensaje);
+            utterance.lang = "es-ES";
+            utterance.rate = 1;
+            utterance.pitch = 1;
+            synth.speak(utterance);
+        }
+    }
+
+    eel.expose(updateText);
+    function updateText(texto) {
+        textoElement.textContent = texto; // Actualiza "Texto Reconocido"
+    }
+
+    eel.expose(updateResponse);
+    function updateResponse(respuesta) {
+        respuestaElement.textContent = respuesta; // Muestra la respuesta del asistente
+        hablarTexto(respuesta); // El asistente habla la respuesta
+    }
+});
