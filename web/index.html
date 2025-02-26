@@ -6,9 +6,7 @@
     <title>Ozuna Assistant</title>
     <link rel="stylesheet" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
 </head>
-
 <body>
     <div id="app">
         <!-- Interruptor de modo oscuro/claro -->
@@ -36,9 +34,13 @@
         </div>
     </div>
 
-    <!-- Elemento de audio -->
-    <audio id="audio">
-        <source src="sound.mp3" type="audio/mpeg">
+    <!-- Elementos de audio para modo claro y oscuro -->
+    <audio id="audio-claro">
+        <source src="audio_claro.mp3" type="audio/mpeg">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+    <audio id="audio-oscuro">
+        <source src="audio_oscuro.mp3" type="audio/mpeg">
         Tu navegador no soporta el elemento de audio.
     </audio>
 
