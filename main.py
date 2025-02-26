@@ -54,45 +54,23 @@ def abrir_aplicacion(comando):
     elif "spotify" in comando:
         spotify.start_playback()
         eel.updateText(" Abriendo Spotify...")
-    """Abre aplicaciones según el comando de voz."""
-    aplicaciones = {
-        "calculadora": "calc.exe",
-        "bloc de notas": "notepad.exe",
-        "explorador": "explorer.exe",
-        "cmd": "cmd.exe",
-        "spotify": "spotify.exe",
-        "epic games": r"D:\Epic\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe",
-        "navegador": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-        "rola": "https://www.youtube.com/watch?v=nnrp3drhw0k&t=90",
-        "lobo": "https://www.youtube.com/watch?v=ckkL7-KPD_E&t=48",
-        "criminal": "https://www.youtube.com/watch?v=VqEbCxg2bNI&t=80"
-    }
-
-    for clave, app in aplicaciones.items():
-        if clave in comando:
-            if app.startswith("http"):
-                print(f"Abriendo URL: {app}")
-                webbrowser.open(app)
-                eel.updateText(f"Reproduciendo {clave}...")
-            else:
-                print(f"Abriendo {clave}...")
-                subprocess.run(app, shell=True)
-                eel.updateText(f"Abriendo {clave}...")
-            return
     
-    # Comandos de control de Spotify
-    if "pausa" in comando:
+    elif "pausa" in comando:
         spotify.pause_playback()
         eel.updateText("Música pausada")
+    
     elif "reproducir" in comando:
         spotify.start_playback()
         eel.updateText("Reproduciendo música")
+    
     elif "siguiente" in comando:
         spotify.next_track()
         eel.updateText("Siguiente canción")
+    
     elif "anterior" in comando:
         spotify.previous_track()
         eel.updateText("Canción anterior")
+    
     elif "volumen" in comando:
         try:
             vol = int([word for word in comando.split() if word.isdigit()][0])
@@ -100,11 +78,44 @@ def abrir_aplicacion(comando):
             eel.updateText(f"Volumen ajustado a {vol}%")
         except (IndexError, ValueError):
             eel.updateText("No entendí el nivel de volumen.")
-    elif "qué suena" in comando:
+    
+    elif "que suena" in comando:
         track_info = spotify.get_current_track()
-        eel.updateText(track_info)
+        if track_info:
+            # Limpiar el texto reconocido (eliminar códigos o caracteres no deseados)
+            nombre_cancion = track_info.split("]")[-1].strip()  # Eliminar todo antes del último "]"
+            eel.updateText(f" {nombre_cancion}")  # Mostrar solo el nombre de la canción
+        else:
+            eel.updateText("No se pudo obtener la información de la canción.")
+    
     else:
+        # Comandos para abrir aplicaciones
+        aplicaciones = {
+            "calculadora": "calc.exe",
+            "bloc de notas": "notepad.exe",
+            "explorador": "explorer.exe",
+            "cmd": "cmd.exe",
+            "epic games": r"D:\Epic\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe",
+            "navegador": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+            "rola": "https://www.youtube.com/watch?v=nnrp3drhw0k&t=90",
+            "lobo": "https://www.youtube.com/watch?v=ckkL7-KPD_E&t=48",
+            "criminal": "https://www.youtube.com/watch?v=VqEbCxg2bNI&t=80"
+        }
+
+        for clave, app in aplicaciones.items():
+            if clave in comando:
+                if app.startswith("http"):
+                    print(f"Abriendo URL: {app}")
+                    webbrowser.open(app)
+                    eel.updateText(f"Reproduciendo {clave}...")
+                else:
+                    print(f"Abriendo {clave}...")
+                    subprocess.run(app, shell=True)
+                    eel.updateText(f"Abriendo {clave}...")
+                return
+        
         eel.updateText("No reconocí el comando.")
+
 
 def reconocer_voz():
     """Reconocer voz en tiempo real."""
