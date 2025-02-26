@@ -60,7 +60,7 @@ class SpotifyControl:
         self.authenticate()
         if self.sp:
             self.sp.pause_playback()
-            return f"[{self.user_id}] ⏸️ Reproducción pausada"
+            return f"[{self.user_id}]  Reproducción pausada"
         return f"[{self.user_id}]  No se pudo pausar la reproducción"
 
     def next_track(self):
@@ -68,7 +68,7 @@ class SpotifyControl:
         self.authenticate()
         if self.sp:
             self.sp.next_track()
-            return f"[{self.user_id}] ⏭️ Siguiente canción"
+            return f"[{self.user_id}] Siguiente canción"
         return f"[{self.user_id}]  No se pudo cambiar de canción"
 
     def previous_track(self):
@@ -76,7 +76,7 @@ class SpotifyControl:
         self.authenticate()
         if self.sp:
             self.sp.previous_track()
-            return f"[{self.user_id}] ⏮️ Canción anterior"
+            return f"[{self.user_id}] Canción anterior"
         return f"[{self.user_id}]  No se pudo regresar de canción"
 
     def set_volume(self, volume):
@@ -84,7 +84,7 @@ class SpotifyControl:
         self.authenticate()
         if self.sp:
             self.sp.volume(volume)
-            return f"[{self.user_id}] 🔊 Volumen ajustado a {volume}%"
+            return f"[{self.user_id}] Volumen ajustado a {volume}%"
         return f"[{self.user_id}]  No se pudo ajustar el volumen"
 
     def get_current_track(self):
@@ -93,7 +93,7 @@ class SpotifyControl:
         if self.sp:
             track = self.sp.current_playback()
             if track and track['item']:
-                return f"[{self.user_id}] 🎵 Reproduciendo: {track['item']['name']} - {track['item']['artists'][0]['name']}"
+                return f"[{self.user_id}] Reproduciendo: {track['item']['name']} - {track['item']['artists'][0]['name']}"
         return f"[{self.user_id}]  No hay música en reproducción"
     
     def is_spotify_running(self):
