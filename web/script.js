@@ -62,12 +62,10 @@ startVisualizer();
 
 
 document.addEventListener("DOMContentLoaded", function () {
-    const textoElement = document.getElementById("texto");
-    const respuestaElement = document.getElementById("respuesta");
     const synth = window.speechSynthesis;
 
     function hablarTexto(mensaje) {
-        if (mensaje && synth.speaking === false) {
+        if (mensaje && !synth.speaking) {
             const utterance = new SpeechSynthesisUtterance(mensaje);
             utterance.lang = "es-ES";
             utterance.rate = 1;
@@ -76,14 +74,24 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function esperarVocesYHablar() {
+        if (synth.getVoices().length === 0) {
+            setTimeout(esperarVocesYHablar, 100); // Espera 100ms y vuelve a intentarlo
+        } else {
+            hablarTexto("Hola, soy Ozuna Assistant, en que puedo ayudarte?");
+        }
+    }
+
+    esperarVocesYHablar(); // Llama a la función para asegurarse de que las voces estén listas
+
     eel.expose(updateText);
     function updateText(texto) {
-        textoElement.textContent = texto; // Actualiza "Texto Reconocido"
+        document.getElementById("texto").textContent = texto;
     }
 
     eel.expose(updateResponse);
     function updateResponse(respuesta) {
-        respuestaElement.textContent = respuesta; // Muestra la respuesta del asistente
-        hablarTexto(respuesta); // El asistente habla la respuesta
+        document.getElementById("respuesta").textContent = respuesta;
+        hablarTexto(respuesta);
     }
 });
