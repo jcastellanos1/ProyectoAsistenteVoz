@@ -3,6 +3,8 @@ from spotipy.oauth2 import SpotifyOAuth
 import os
 from dotenv import load_dotenv
 import time
+import subprocess
+import psutil
 
 load_dotenv()
 
@@ -53,14 +55,6 @@ class SpotifyControl:
             return user_data.get("id", "default_user")  # Si falla, usa "default_user"
         return "default_user"
 
-    def start_playback(self):
-        """Reanuda la reproducción."""
-        self.authenticate()
-        if self.sp:
-            self.sp.start_playback()
-            return f"[{self.user_id}] ▶️ Reproducción iniciada"
-        return f"[{self.user_id}]  No se pudo iniciar la reproducción"
-
     def pause_playback(self):
         """Pausa la reproducción."""
         self.authenticate()
@@ -101,3 +95,80 @@ class SpotifyControl:
             if track and track['item']:
                 return f"[{self.user_id}] 🎵 Reproduciendo: {track['item']['name']} - {track['item']['artists'][0]['name']}"
         return f"[{self.user_id}]  No hay música en reproducción"
+    
+    def is_spotify_running(self):
+        """Verifica si Spotify está abierto en el sistema."""
+        for process in psutil.process_iter(['name']):
+            if process.info['name'] and 'Spotify' in process.info['name']:
+                return True
+        return False
+
+    def get_active_device(self):
+        """Obtiene el ID de un dispositivo activo en Spotify."""
+        devices = self.sp.devices()
+        for device in devices['devices']:
+            if device['is_active']:
+                return device['id']
+        return None
+
+    def get_first_available_device(self):
+        """Obtiene el primer dispositivo disponible si no hay uno activo."""
+        devices = self.sp.devices()
+        if devices['devices']:
+            return devices['devices'][0]['id']
+        return None
+
+    def start_playback(self, song_name=None):
+        """Inicia la reproducción de una canción en Spotify."""
+        # Verificar si Spotify está abierto en el sistema
+        if not self.is_spotify_running():
+            print("Spotify no está abierto. Abriéndolo...")
+            os.system("start spotify.exe")  # Abre Spotify en Windows
+            time.sleep(5)  # Esperar que se inicie
+
+        # Autenticar antes de hacer cualquier acción
+        self.authenticate()
+
+        # Verificar si hay un dispositivo activo
+        device_id = self.get_active_device()
+
+        if not device_id:
+            print("No hay dispositivos activos. Buscando uno disponible...")
+            device_id = self.get_first_available_device()
+
+            if not device_id:
+                print("No se encontraron dispositivos disponibles. Abre Spotify en algún dispositivo y reprodúcelo manualmente una vez.")
+                return
+            
+            # Transferir la reproducción al dispositivo disponible
+            self.sp.transfer_playback(device_id, force_play=True)
+            time.sleep(2)  # Esperar que la transferencia se complete
+
+        # Si no se especificó una canción, simplemente reanuda la reproducción
+        if not song_name:
+            try:
+                self.sp.start_playback(device_id=device_id)
+                print(" Reproducción iniciada correctamente.")
+            except spotipy.exceptions.SpotifyException as e:
+                print(f" Error al iniciar la reproducción: {e}")
+            return
+
+        # 🔍 Buscar la canción específica
+        print(f"Buscando la canción: {song_name}...")
+
+        query = f"track:{song_name}"
+        results = self.sp.search(q=query, type="track", limit=1)
+
+        if not results['tracks']['items']:
+            print("No se encontró la canción. Intenta con otro nombre.")
+            return
+
+        track = results['tracks']['items'][0]
+        track_uri = track['uri']
+        track_name = track['name']
+        track_artist = track['artists'][0]['name']
+
+        print(f" Reproduciendo: {track_name} de {track_artist}")
+
+        # Reproducir la canción encontrada
+        self.sp.start_playback(device_id=device_id, uris=[track_uri])
