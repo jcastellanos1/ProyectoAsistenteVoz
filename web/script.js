@@ -11,14 +11,16 @@ document.addEventListener("DOMContentLoaded", function () {
         if (themeToggle.checked) {
             document.body.classList.add("dark-mode");
             localStorage.setItem("theme", "dark");
+            // Reproducir audio para modo oscuro
+            const audioOscuro = document.getElementById("audio-oscuro");
+            audioOscuro.play();
         } else {
             document.body.classList.remove("dark-mode");
             localStorage.setItem("theme", "light");
+            // Reproducir audio para modo claro
+            const audioClaro = document.getElementById("audio-claro");
+            audioClaro.play();
         }
-
-        // Reproducir audio cuando se cambia el estado del interruptor
-        var audio = document.getElementById("audio");
-        audio.play();
     });
 
     // Iniciar el reconocimiento de voz automáticamente
