@@ -4,7 +4,7 @@ import pyautogui
 from flask import Flask
 from modules.speech import reconocer_voz
 from modules.commands import ejecutar_comando
-from modules.weather import get_weather, get_forecast
+
 # Inicializar Eel
 eel.init('web')
 
