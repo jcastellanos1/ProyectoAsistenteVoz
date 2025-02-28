@@ -13,7 +13,7 @@ APLICACIONES = {
     "calculadora": {"exe": "calc.exe"},
     "bloc de notas": {"exe": "notepad.exe"},
     "explorador": {"exe": "explorer.exe"},
-    "cmd": {"exe": "cmd.exe"},
+    "terminal": {"exe": "cmd.exe"},
     "spotify": {"exe": "spotify.exe"},
     "epic games": {"exe": r"D:\Epic\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe"},
     "navegador": {"exe": r"C:\Program Files\Google\Chrome\Application\chrome.exe"},
