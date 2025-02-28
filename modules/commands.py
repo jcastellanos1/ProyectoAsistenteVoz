@@ -82,6 +82,7 @@ def cerrar_aplicacion(nombre):
     else:
         eel.updateResponse(f"No puedo cerrar {nombre}.")
 
+# COntrol volumen
 def ajustar_volumen(porcentaje):
     """Ajusta el volumen del sistema al porcentaje especificado (0-100)."""
     dispositivos = AudioUtilities.GetSpeakers()
