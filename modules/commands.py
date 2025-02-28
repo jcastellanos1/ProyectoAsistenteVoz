@@ -2,9 +2,13 @@ import eel
 import subprocess
 import webbrowser
 import psutil  # Para cerrar aplicaciones
+import screen_brightness_control as sbc
 from word2number import w2n
 from modules.spotify_control import SpotifyControl
 from modules.weather import get_weather, get_forecast
+from ctypes import cast, POINTER
+from comtypes import CLSCTX_ALL
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 spotify = SpotifyControl()
 
@@ -78,6 +82,72 @@ def cerrar_aplicacion(nombre):
     else:
         eel.updateResponse(f"No puedo cerrar {nombre}.")
 
+def ajustar_volumen(porcentaje):
+    """Ajusta el volumen del sistema al porcentaje especificado (0-100)."""
+    dispositivos = AudioUtilities.GetSpeakers()
+    interfaz = dispositivos.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    volumen = cast(interfaz, POINTER(IAudioEndpointVolume))
+    
+    # Normalizar el volumen al rango entre 0.0 y 1.0
+    volumen.SetMasterVolumeLevelScalar(porcentaje / 100, None)
+    eel.updateResponse(f"Volumen ajustado a {porcentaje}%")
+
+def subir_volumen(incremento=10):
+    """Sube el volumen del sistema en un porcentaje determinado."""
+    dispositivos = AudioUtilities.GetSpeakers()
+    interfaz = dispositivos.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    volumen = cast(interfaz, POINTER(IAudioEndpointVolume))
+    
+    volumen_actual = volumen.GetMasterVolumeLevelScalar() * 100
+    nuevo_volumen = min(100, volumen_actual + incremento)  # Máximo 100%
+    
+    volumen.SetMasterVolumeLevelScalar(nuevo_volumen / 100, None)
+    eel.updateResponse(f"Volumen aumentado a {int(nuevo_volumen)}%")
+
+def bajar_volumen(decremento=10):
+    """Baja el volumen del sistema en un porcentaje determinado."""
+    dispositivos = AudioUtilities.GetSpeakers()
+    interfaz = dispositivos.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    volumen = cast(interfaz, POINTER(IAudioEndpointVolume))
+    
+    volumen_actual = volumen.GetMasterVolumeLevelScalar() * 100
+    nuevo_volumen = max(0, volumen_actual - decremento)  # Mínimo 0%
+    
+    volumen.SetMasterVolumeLevelScalar(nuevo_volumen / 100, None)
+    eel.updateResponse(f"Volumen reducido a {int(nuevo_volumen)}%")
+
+#COntrolar brillo
+def ajustar_brillo(porcentaje):
+    """Ajusta el brillo de la pantalla al porcentaje indicado (0-100)."""
+    try:
+        sbc.set_brightness(porcentaje)
+        eel.updateResponse(f"Brillo ajustado a {porcentaje}%")
+    except Exception as e:
+        eel.updateResponse("No se pudo cambiar el brillo.")
+        print(f"Error al ajustar brillo: {e}")
+
+def subir_brillo(incremento=10):
+    """Aumenta el brillo de la pantalla en el porcentaje indicado."""
+    try:
+        brillo_actual = sbc.get_brightness(display=0)[0]  # Obtener brillo actual
+        nuevo_brillo = min(100, brillo_actual + incremento)  # Máximo 100%
+        sbc.set_brightness(nuevo_brillo)
+        eel.updateResponse(f"Brillo aumentado a {nuevo_brillo}%")
+    except Exception as e:
+        eel.updateResponse("No se pudo aumentar el brillo.")
+        print(f"Error al subir brillo: {e}")
+
+def bajar_brillo(decremento=10):
+    """Disminuye el brillo de la pantalla en el porcentaje indicado."""
+    try:
+        brillo_actual = sbc.get_brightness(display=0)[0]
+        nuevo_brillo = max(0, brillo_actual - decremento)  # Mínimo 0%
+        sbc.set_brightness(nuevo_brillo)
+        eel.updateResponse(f"Brillo reducido a {nuevo_brillo}%")
+    except Exception as e:
+        eel.updateResponse("No se pudo reducir el brillo.")
+        print(f"Error al bajar brillo: {e}")
+
 # Controlar música
 def controlar_musica(comando):
     """Ejecuta comandos de música en Spotify."""
@@ -142,7 +212,33 @@ def ejecutar_comando(comando):
         abrir_aplicacion(nombre_app)
         return
     
+    if "subir volumen" in comando:
+        subir_volumen()
+        return
+
+    if "bajar volumen" in comando:
+        bajar_volumen()
+        return
     
+    if "subir brillo" in comando:
+        subir_brillo()
+        return
+
+    if "bajar brillo" in comando:
+        bajar_brillo()
+        return
+
+    if "brillo" in comando:
+        palabras = comando.split()
+        numeros = [convertir_numero(word) for word in palabras if convertir_numero(word) is not None]
+        if numeros:
+            ajustar_brillo(numeros[0])
+        else:
+            eel.updateResponse("No entendí el nivel de brillo.")
+        return
+
+
+   
     # Comando para "clima mañana" o "pronóstico mañana"
     if "clima" in comando and "mañana" in comando:
         # Limpiar el comando para extraer la ciudad correctamente
