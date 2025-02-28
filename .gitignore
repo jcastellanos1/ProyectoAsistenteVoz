@@ -1,0 +1,16 @@
+# Archivos de caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Caché de Python y otros archivos temporales
+.cache/
+
+# Archivo de entorno
+ProyectoAsistenteVoz/
+*.env
+.cache
+
+#Ignorar modelo de voz
+Modelos_voz/

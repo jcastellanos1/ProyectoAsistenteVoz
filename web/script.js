@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         function animate() {
             analyser.getByteFrequencyData(dataArray);
             let volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-            let scale = Math.max(1, Math.min((volume - 5) / 7, 2.5)); // Ajuste de sensibilidad
+            let scale = Math.max(1, Math.min((volume - 5) / 30, 2.5)); // Ajuste de sensibilidad
             circle.style.transform = `scale(${scale})`;
             let glowIntensity = Math.min(volume * 3, 150);
             circle.style.boxShadow = `0 0 ${40 + glowIntensity}px #1E90FF, 0 0 ${50 + glowIntensity}px rgba(30, 144, 255, 1), 0 0 ${120 + glowIntensity}px rgba(30, 144, 255, 0.8), 0 0 ${160 + glowIntensity}px rgba(30, 144, 255, 0.6)`;
