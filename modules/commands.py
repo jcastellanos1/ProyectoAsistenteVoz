@@ -1,4 +1,5 @@
 import eel
+import random
 import subprocess
 import webbrowser
 import psutil  # Para cerrar aplicaciones
@@ -25,6 +26,34 @@ APLICACIONES = {
     "lobo": {"url": "https://www.youtube.com/watch?v=ckkL7-KPD_E&t=48"},
     "criminal": {"url": "https://www.youtube.com/watch?v=VqEbCxg2bNI&t=80"}
 }
+
+
+# Lista de chistes
+CHISTES = [
+    "¿Por qué los pájaros no usan Facebook? Porque ya tienen Twitter.",
+    "¿Cómo se dice pañuelo en chino? Saka-moko.",
+    "¿Qué le dice un gusano a otro gusano? Voy a dar una vuelta a la manzana.",
+    "¿Por qué los matemáticos odian la playa? Porque hay demasiados senos y tangentes.",
+    "¿Sabes cuál es el animal más antiguo? La cebra, porque está en blanco y negro.",
+    "¿Qué le dice un jardinero a otro? Disfrutemos mientras podamos.",
+    "¿Cómo se despiden dos químicos? Ácido un placer.",
+    "¿Cómo se suicida un algoritmo? Entra en un bucle infinito sin salida.",
+    "¿Qué hace un ingeniero en sistemas cuando su coche se descompone? Apaga y vuelve a encender.",
+    "¿Qué le dice un bit a otro bit en una fiesta? 'Nos vemos en el bus de datos'.",
+    "¿Por qué los hackers no pueden tener una relación estable? Porque siempre crackean antes de comprometerse.",
+    "¿Por qué la IA fue al gimnasio? Para mejorar su machine learning y levantar más datos.",
+    "¿Qué hace una base de datos en el gimnasio? Ejecuta queries para mantenerse en forma.",
+    "¿Cuál es el animal favorito de un informático? El pingüino, por supuesto (¡Viva Linux!).",
+    "¿Por qué la IA siempre gana en ajedrez? Porque piensa millones de movimientos por segundo… y tú solo uno cada cinco minutos."
+]
+
+
+# Añade funcion de contar chistes
+def contar_chiste():
+    """Selecciona un chiste aleatorio y lo muestra."""
+    chiste = random.choice(CHISTES)
+    eel.updateResponse(chiste)
+
 
 def clima_comando(city="Santa Lucía Cotzumalguapa, GT"):
     """Comando para obtener el clima actual de una ciudad."""
@@ -238,7 +267,9 @@ def ejecutar_comando(comando):
             eel.updateResponse("No entendí el nivel de brillo.")
         return
 
-
+    if "cuéntame un chiste" in comando or "dime un chiste" in comando:
+        contar_chiste()
+        return
    
     # Comando para "clima mañana" o "pronóstico mañana"
     if "clima" in comando and "mañana" in comando:
