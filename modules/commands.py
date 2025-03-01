@@ -13,6 +13,12 @@ from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 spotify = SpotifyControl()
 
+VALORES_NIVELES = {
+    "cero": 0,
+    "cincuenta": 50,
+    "cien": 100
+}
+
 # Diccionario de aplicaciones
 APLICACIONES = {
     "calculadora": {"exe": "calc.exe"},
@@ -53,6 +59,21 @@ def contar_chiste():
     """Selecciona un chiste aleatorio y lo muestra."""
     chiste = random.choice(CHISTES)
     eel.updateResponse(chiste)
+
+def ajustar_nivel(comando):
+    """Ajusta el volumen o brillo basado en palabras clave (cero, cincuenta, cien)."""
+    comando = comando.lower()
+    tipo = "volumen" if "volumen" in comando else "brillo" if "brillo" in comando else None
+    accion = "subir" if "subir" in comando else "bajar" if "bajar" in comando else None
+    valor = next((VALORES_NIVELES[num] for num in VALORES_NIVELES if num in comando), None)
+
+    if tipo and accion and valor is not None:
+        if tipo == "volumen":
+            ajustar_volumen(valor)
+        elif tipo == "brillo":
+            ajustar_brillo(valor)
+    else:
+        eel.updateResponse("No entendí el comando correctamente.")
 
 
 def clima_comando(city="Santa Lucía Cotzumalguapa, GT"):
@@ -112,39 +133,6 @@ def cerrar_aplicacion(nombre):
         eel.updateResponse(f"No puedo cerrar {nombre}.")
 
 # COntrol volumen
-def ajustar_volumen(porcentaje):
-    """Ajusta el volumen del sistema al porcentaje especificado (0-100)."""
-    dispositivos = AudioUtilities.GetSpeakers()
-    interfaz = dispositivos.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-    volumen = cast(interfaz, POINTER(IAudioEndpointVolume))
-    
-    # Normalizar el volumen al rango entre 0.0 y 1.0
-    volumen.SetMasterVolumeLevelScalar(porcentaje / 100, None)
-    eel.updateResponse(f"Volumen ajustado a {porcentaje}%")
-
-def subir_volumen(incremento=10):
-    """Sube el volumen del sistema en un porcentaje determinado."""
-    dispositivos = AudioUtilities.GetSpeakers()
-    interfaz = dispositivos.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-    volumen = cast(interfaz, POINTER(IAudioEndpointVolume))
-    
-    volumen_actual = volumen.GetMasterVolumeLevelScalar() * 100
-    nuevo_volumen = min(100, volumen_actual + incremento)  # Máximo 100%
-    
-    volumen.SetMasterVolumeLevelScalar(nuevo_volumen / 100, None)
-    eel.updateResponse(f"Volumen aumentado a {int(nuevo_volumen)}%")
-
-def bajar_volumen(decremento=10):
-    """Baja el volumen del sistema en un porcentaje determinado."""
-    dispositivos = AudioUtilities.GetSpeakers()
-    interfaz = dispositivos.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-    volumen = cast(interfaz, POINTER(IAudioEndpointVolume))
-    
-    volumen_actual = volumen.GetMasterVolumeLevelScalar() * 100
-    nuevo_volumen = max(0, volumen_actual - decremento)  # Mínimo 0%
-    
-    volumen.SetMasterVolumeLevelScalar(nuevo_volumen / 100, None)
-    eel.updateResponse(f"Volumen reducido a {int(nuevo_volumen)}%")
 
 #COntrolar brillo
 def ajustar_brillo(porcentaje):
@@ -258,15 +246,10 @@ def ejecutar_comando(comando):
         bajar_brillo()
         return
 
-    if "brillo" in comando:
-        palabras = comando.split()
-        numeros = [convertir_numero(word) for word in palabras if convertir_numero(word) is not None]
-        if numeros:
-            ajustar_brillo(numeros[0])
-        else:
-            eel.updateResponse("No entendí el nivel de brillo.")
+    if any(palabra in comando for palabra in ["volumen", "brillo"]):
+        ajustar_nivel(comando)
         return
-
+    
     if "cuéntame un chiste" in comando or "dime un chiste" in comando:
         contar_chiste()
         return
