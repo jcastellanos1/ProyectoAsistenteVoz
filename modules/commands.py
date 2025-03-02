@@ -133,7 +133,39 @@ def cerrar_aplicacion(nombre):
         eel.updateResponse(f"No puedo cerrar {nombre}.")
 
 # COntrol volumen
+def ajustar_volumen(porcentaje):
+    """Ajusta el volumen del sistema al porcentaje especificado (0-100)."""
+    dispositivos = AudioUtilities.GetSpeakers()
+    interfaz = dispositivos.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    volumen = cast(interfaz, POINTER(IAudioEndpointVolume))
+    
+    # Normalizar el volumen al rango entre 0.0 y 1.0
+    volumen.SetMasterVolumeLevelScalar(porcentaje / 100, None)
+    eel.updateResponse(f"Volumen ajustado a {porcentaje}%")
 
+def subir_volumen(incremento=10):
+    """Sube el volumen del sistema en un porcentaje determinado."""
+    dispositivos = AudioUtilities.GetSpeakers()
+    interfaz = dispositivos.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    volumen = cast(interfaz, POINTER(IAudioEndpointVolume))
+    
+    volumen_actual = volumen.GetMasterVolumeLevelScalar() * 100
+    nuevo_volumen = min(100, volumen_actual + incremento)  # Máximo 100%
+    
+    volumen.SetMasterVolumeLevelScalar(nuevo_volumen / 100, None)
+    eel.updateResponse(f"Volumen aumentado a {int(nuevo_volumen)}%")
+
+def bajar_volumen(decremento=10):
+    """Baja el volumen del sistema en un porcentaje determinado."""
+    dispositivos = AudioUtilities.GetSpeakers()
+    interfaz = dispositivos.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    volumen = cast(interfaz, POINTER(IAudioEndpointVolume))
+    
+    volumen_actual = volumen.GetMasterVolumeLevelScalar() * 100
+    nuevo_volumen = max(0, volumen_actual - decremento)  # Mínimo 0%
+    
+    volumen.SetMasterVolumeLevelScalar(nuevo_volumen / 100, None)
+    eel.updateResponse(f"Volumen reducido a {int(nuevo_volumen)}%")
 #COntrolar brillo
 def ajustar_brillo(porcentaje):
     """Ajusta el brillo de la pantalla al porcentaje indicado (0-100)."""
