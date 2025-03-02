@@ -10,12 +10,21 @@ from modules.weather import get_weather, get_forecast
 from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+import re
 
 spotify = SpotifyControl()
 
 VALORES_NIVELES = {
     "cero": 0,
+    "diez": 10,
+    "veinte": 20,
+    "treinta": 30,
+    "cuarenta": 40,
     "cincuenta": 50,
+    "sesenta": 60,
+    "setenta": 70,
+    "ochenta": 80,
+    "noventa": 90,
     "cien": 100
 }
 
@@ -61,12 +70,31 @@ def contar_chiste():
     eel.updateResponse(chiste)
 
 def ajustar_nivel(comando):
-    """Ajusta el volumen o brillo basado en palabras clave (cero, cincuenta, cien)."""
+    """Ajusta el volumen o brillo basado en un comando flexible."""
     comando = comando.lower()
-    tipo = "volumen" if "volumen" in comando else "brillo" if "brillo" in comando else None
-    accion = "subir" if "subir" in comando else "bajar" if "bajar" in comando else None
-    valor = next((VALORES_NIVELES[num] for num in VALORES_NIVELES if num in comando), None)
 
+    # Buscar tipo (volumen o brillo)
+    tipo = None
+    if "volumen" in comando:
+        tipo = "volumen"
+    elif "brillo" in comando:
+        tipo = "brillo"
+
+    # Buscar acción (subir o bajar)
+    accion = None
+    if "subir" in comando or "aumentar" in comando:
+        accion = "subir"
+    elif "bajar" in comando or "reducir" in comando or "disminuir" in comando:
+        accion = "bajar"
+
+    # Buscar valor en cualquier parte del texto
+    valor = None
+    for palabra, numero in VALORES_NIVELES.items():
+        if re.search(rf'\b{palabra}\b', comando):
+            valor = numero
+            break
+
+    # Validar si se encontró todo lo necesario
     if tipo and accion and valor is not None:
         if tipo == "volumen":
             ajustar_volumen(valor)
@@ -74,8 +102,7 @@ def ajustar_nivel(comando):
             ajustar_brillo(valor)
     else:
         eel.updateResponse("No entendí el comando correctamente.")
-
-
+                           
 def clima_comando(city="Santa Lucía Cotzumalguapa, GT"):
     """Comando para obtener el clima actual de una ciudad."""
     print(get_weather(city))  # Muestra el clima actual
