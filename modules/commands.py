@@ -11,7 +11,8 @@ from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 import re
-
+import requests
+from googletrans import Translator
 spotify = SpotifyControl()
 
 VALORES_NIVELES = {
@@ -43,31 +44,60 @@ APLICACIONES = {
 }
 
 
-# Lista de chistes
-CHISTES = [
-    "¿Por qué los pájaros no usan Facebook? Porque ya tienen Twitter.",
-    "¿Cómo se dice pañuelo en chino? Saka-moko.",
-    "¿Qué le dice un gusano a otro gusano? Voy a dar una vuelta a la manzana.",
-    "¿Por qué los matemáticos odian la playa? Porque hay demasiados senos y tangentes.",
-    "¿Sabes cuál es el animal más antiguo? La cebra, porque está en blanco y negro.",
-    "¿Qué le dice un jardinero a otro? Disfrutemos mientras podamos.",
-    "¿Cómo se despiden dos químicos? Ácido un placer.",
-    "¿Cómo se suicida un algoritmo? Entra en un bucle infinito sin salida.",
-    "¿Qué hace un ingeniero en sistemas cuando su coche se descompone? Apaga y vuelve a encender.",
-    "¿Qué le dice un bit a otro bit en una fiesta? 'Nos vemos en el bus de datos'.",
-    "¿Por qué los hackers no pueden tener una relación estable? Porque siempre crackean antes de comprometerse.",
-    "¿Por qué la IA fue al gimnasio? Para mejorar su machine learning y levantar más datos.",
-    "¿Qué hace una base de datos en el gimnasio? Ejecuta queries para mantenerse en forma.",
-    "¿Cuál es el animal favorito de un informático? El pingüino, por supuesto (¡Viva Linux!).",
-    "¿Por qué la IA siempre gana en ajedrez? Porque piensa millones de movimientos por segundo… y tú solo uno cada cinco minutos."
-]
+#mapear categorías en español a inglés
+categorias = {
+    "miedo": "Spooky",
+    "programación": "Programming",
+    "chiste": "Any",
+    "chiste negro": "Dark",
+    "navidad": "Christmas",
+    "raros": "Misc",
+    "raro": "Misc"
+    # Agrega más categorías según sea necesario
+}
 
+def traducir_al_espanol(texto):
+    """Traduce un texto de inglés a español."""
+    translator = Translator()
+    traduccion = translator.translate(texto, src='en', dest='es')
+    return traduccion.text
 
-# Añade funcion de contar chistes
-def contar_chiste():
-    """Selecciona un chiste aleatorio y lo muestra."""
-    chiste = random.choice(CHISTES)
-    eel.updateResponse(chiste)
+def contar_chiste(categoria):
+    """Obtiene un chiste de la categoría especificada y lo muestra."""
+
+    # Convertimos la categoría recibida a minúsculas para hacer la comparación insensible a mayúsculas
+    categoria_ingles = categorias.get(categoria.lower(), "Any") 
+   
+    if categoria_ingles == "Any":
+        print("No se encontró categoría válida. Usando 'Any'.")
+    
+    # Hacemos la solicitud a la API (en inglés)
+    url = f"https://v2.jokeapi.dev/joke/{categoria_ingles}"
+    response = requests.get(url)
+    data = response.json()
+    
+ 
+    print(f"Solicitud a la API para la categoría: {categoria_ingles}")
+    print(f"Respuesta de la API: {data}")
+    
+    if data["error"] == False:
+        if data["type"] == "twopart":
+            pregunta = data["setup"]
+            respuesta = data["delivery"]
+            chiste = f"{pregunta} - {respuesta}"
+        else:  # Si es un chiste de una sola parte
+            chiste = data["joke"]
+        
+        chiste_traducido = traducir_al_espanol(chiste)
+        
+        # Actualizar la interfaz o mostrar el chiste
+        eel.updateResponse(chiste_traducido)
+        return chiste_traducido
+    else:
+        mensaje_error = f"No pude obtener un chiste de la categoría {categoria}."
+        eel.updateResponse(mensaje_error)
+        return mensaje_error
+
 
 def ajustar_nivel(comando):
     """Ajusta el volumen o brillo basado en un comando flexible."""
@@ -261,6 +291,21 @@ def controlar_musica(comando):
         eel.updateResponse("Hubo un problema con Spotify. Verifica que la aplicación esté abierta y que un dispositivo esté activo.")
         print(f"Error en controlar_musica: {e}")
 
+def extraer_categoria(comando):
+    """Extrae la categoría del comando."""
+    
+    # Lista de palabras clave para categorías
+    palabras_categorias = ["miedo", "programación", "chiste negro", "navidad", "raro","raros"]
+    
+    # Buscar la categoría en el comando
+    for palabra in palabras_categorias:
+        if palabra in comando.lower():
+            return palabra
+    
+    # Si no se encuentra ninguna categoría, devolver "chiste" como valor predeterminado
+    return "chiste"
+
+
 # Función para ejecutar comandos
 def ejecutar_comando(comando):
     """Procesa el comando de voz y ejecuta la acción correspondiente."""
@@ -309,10 +354,12 @@ def ejecutar_comando(comando):
         ajustar_nivel(comando)
         return
     
-    if "cuéntame un chiste" in comando or "dime un chiste" in comando:
-        contar_chiste()
+    if any(palabra in comando for palabra in ["chiste", "cuéntame un chiste", "dime un chiste", "cuenta un chiste"]):
+        # Extraer la categoría del comando
+        categoria = extraer_categoria(comando)
+        contar_chiste(categoria)
         return
-   
+
     # Comando para "clima mañana" o "pronóstico mañana"
     if "clima" in comando and "mañana" in comando:
         # Limpiar el comando para extraer la ciudad correctamente

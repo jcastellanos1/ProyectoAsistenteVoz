@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             }
         });
 
-        setTimeout(() => hablarTexto("Hola, soy Ozuna Assistant, ¿en qué puedo ayudarte?"), 2500);
+        setTimeout(() => hablarTexto("Hola, soy Ozuna Assistant, ¿en qué puedo ayudarte?"), 1500);
     }
 
     esperarVocesYHablar(); // ⬅ Ahora sí el saludo debería funcionar bien 🚀
