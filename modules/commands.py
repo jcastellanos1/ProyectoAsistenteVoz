@@ -6,7 +6,7 @@ import psutil  # Para cerrar aplicaciones
 import screen_brightness_control as sbc
 from word2number import w2n
 from modules.spotify_control import SpotifyControl
-from modules.weather import get_weather, get_forecast
+from modules.weather import get_weather, get_forecast 
 from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
@@ -72,6 +72,7 @@ def update_response_with_delay(mensaje, delay=1):
     set_listening_state(True)
 
 def contar_chiste(categoria):
+    db_logger.log_question(f"contar chiste de ")
     """Obtiene un chiste de la categoría especificada y lo muestra."""
     categoria_ingles = categorias.get(categoria.lower(), "Any") 
    
@@ -164,7 +165,7 @@ def convertir_numero(texto):
 
 # Abrir apps
 def abrir_aplicacion(nombre):
-    db_logger.log_question(f"funcion de abrir apps")
+    db_logger.log_question(f"abrir apliacion")
     """Abre una aplicación o una URL según el diccionario."""
     app = APLICACIONES.get(nombre)
     if app:
@@ -179,6 +180,7 @@ def abrir_aplicacion(nombre):
 
 # Cerrar apps
 def cerrar_aplicacion(nombre):
+    db_logger.log_question(f"cerrar apliacion")
     """Cierra una aplicación si está en ejecución."""
     app = APLICACIONES.get(nombre)
     if app and "exe" in app:
@@ -204,7 +206,9 @@ def ajustar_volumen(porcentaje):
     update_response_with_delay(f"Volumen ajustado a {porcentaje}%")
 
 def subir_volumen(incremento=10):
+    db_logger.log_question(f"subir volume")
     """Sube el volumen del sistema en un porcentaje determinado."""
+    
     dispositivos = AudioUtilities.GetSpeakers()
     interfaz = dispositivos.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
     volumen = cast(interfaz, POINTER(IAudioEndpointVolume))
@@ -216,6 +220,7 @@ def subir_volumen(incremento=10):
     update_response_with_delay(f"Volumen aumentado a {int(nuevo_volumen)}%")
 
 def bajar_volumen(decremento=10):
+    db_logger.log_question(f"bajar volume")
     """Baja el volumen del sistema en un porcentaje determinado."""
     dispositivos = AudioUtilities.GetSpeakers()
     interfaz = dispositivos.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
@@ -237,6 +242,7 @@ def ajustar_brillo(porcentaje):
         print(f"Error al ajustar brillo: {e}")
 
 def subir_brillo(incremento=10):
+    db_logger.log_question(f"subir el brillo")
     """Aumenta el brillo de la pantalla en el porcentaje indicado."""
     try:
         brillo_actual = sbc.get_brightness(display=0)[0]  # Obtener brillo actual
@@ -248,6 +254,7 @@ def subir_brillo(incremento=10):
         print(f"Error al subir brillo: {e}")
 
 def bajar_brillo(decremento=10):
+    db_logger.log_question(f"bajar brillo")
     """Disminuye el brillo de la pantalla en el porcentaje indicado."""
     try:
         brillo_actual = sbc.get_brightness(display=0)[0]
@@ -261,29 +268,27 @@ def bajar_brillo(decremento=10):
 # Controlar música
 def controlar_musica(comando):
     """Ejecuta comandos de música en Spotify."""
+   
     try:
         if "pausa" in comando:
+            db_logger.log_question(f"pausar spotify")
             spotify.pause_playback()
             update_response_with_delay("Música pausada")
         elif "reproducir" in comando:
+            db_logger.log_question(f"reproducir spotify")
             spotify.start_playback()
             update_response_with_delay("Reproduciendo música")
         elif "siguiente" in comando:
+            db_logger.log_question(f"siguiente cancion")
             spotify.next_track()
             update_response_with_delay("Siguiente canción")
-        elif "anterior" in comando:
+        elif "anterior" in comando: 
+            db_logger.log_question(f"anterior cancion")
             spotify.previous_track()
             update_response_with_delay("Canción anterior")
-        elif "volumen" in comando:
-            palabras = comando.split()
-            numeros = [convertir_numero(word) for word in palabras if convertir_numero(word) is not None]
-            if numeros:
-                vol = numeros[0]
-                spotify.set_volume(vol)
-                update_response_with_delay(f"Volumen ajustado a {vol}%")
-            else:
-                update_response_with_delay("No entendí el nivel de volumen.")
-        elif "que suena" in comando:
+
+        elif "qué suena" in comando:
+            db_logger.log_question(f"Que suena ")
             track_info = spotify.get_current_track()
             if track_info:
                 nombre_cancion = track_info.split("]")[-1].strip()
@@ -359,6 +364,7 @@ def ejecutar_comando(comando):
     
     if any(palabra in comando for palabra in ["chiste", "cuéntame un chiste", "dime un chiste", "cuenta un chiste"]):
         # Extraer la categoría del comando
+        db_logger.log_question(f"contar un chiste")
         categoria = extraer_categoria(comando)
         contar_chiste(categoria)
         return
@@ -379,6 +385,7 @@ def ejecutar_comando(comando):
 
     # Comando para "cuál es el clima en X ciudad"
     if "cuál es el clima en" in comando:
+        db_logger.log_question(f"cual es el cliama en ")
         ciudad = comando.replace("cuál es el clima en", "").strip()
         clima_ciudad_comando(ciudad)
         return

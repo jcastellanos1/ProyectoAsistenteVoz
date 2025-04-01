@@ -19,3 +19,5 @@ Modelos_voz/
 
 #base de datos local 
 .db
+.env
+*.db
