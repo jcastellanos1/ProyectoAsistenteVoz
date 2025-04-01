@@ -21,3 +21,6 @@ Modelos_voz/
 .db
 .env
 *.db
+.env
+.env
+assistant_logs.db
