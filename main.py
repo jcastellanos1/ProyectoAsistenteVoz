@@ -21,9 +21,16 @@ def start_listening():
     """Iniciar el reconocimiento de voz en un hilo separado."""
     threading.Thread(target=reconocer_voz, args=(ejecutar_comando,), daemon=True).start()
 
+@eel.expose
+def get_top_questions():
+    top = db_logger.obtener_top_preguntas()
+    return [{"question": q, "count": c} for q, c in top]
+
 def run_flask():
     """Ejecutar Flask en un hilo separado."""
     app.run(port=8080, debug=False, use_reloader=False)
+
+
 
 if __name__ == "__main__":
     try:

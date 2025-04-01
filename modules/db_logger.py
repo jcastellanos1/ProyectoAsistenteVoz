@@ -25,3 +25,12 @@ def log_question(question):
         cursor.execute("UPDATE questions SET count = count + 1 WHERE question = ?", (question,))
     conn.commit()
     conn.close()
+
+def obtener_top_preguntas(limit=3):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT question, count FROM questions ORDER BY count DESC LIMIT ?', (limit,))
+    resultados = cursor.fetchall()
+    conn.close()
+    return resultados
+

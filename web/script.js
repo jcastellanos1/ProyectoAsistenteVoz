@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         setTimeout(() => hablarTexto("Hola, soy Ozuna Assistant, ¿en qué puedo ayudarte?"), 1500);
     }
 
-    esperarVocesYHablar(); // ⬅ Ahora sí el saludo debería funcionar bien 🚀
+    esperarVocesYHablar(); // ⬅ Ahora sí el saludo debería funcionar bien 
 
     //  Animación visual del micrófono (Efecto círculo)
     try {
@@ -92,5 +92,28 @@ document.addEventListener("DOMContentLoaded", async function () {
     function updateResponse(respuesta) {
         document.getElementById("respuesta").innerText = respuesta;
         hablarTexto(respuesta);
+        cargarTopPreguntas();
     }
+
+    // Cargar preguntas más frecuentes (nueva funcionalidad)
+    async function cargarTopPreguntas() {
+        console.log("Cargando preguntas más frecuentes...");
+        const top = await eel.get_top_questions()();
+        console.log("Respuesta desde eel:", top);  // 👈 clave
+        const lista = document.getElementById("question-list");
+        lista.innerHTML = "";
+    
+        if (top.length === 0) {
+            lista.innerHTML = "<li>No hay preguntas registradas aún.</li>";
+        } else {
+            top.forEach(q => {
+                const li = document.createElement("li");
+                li.textContent = q.question;
+                lista.appendChild(li);
+            });
+        }
+    }
+    
+
+    cargarTopPreguntas();
 });
