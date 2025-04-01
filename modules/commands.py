@@ -11,7 +11,7 @@ from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 import re
-
+from modules import db_logger
 spotify = SpotifyControl()
 
 VALORES_NIVELES = {
@@ -66,6 +66,7 @@ CHISTES = [
 # Añade funcion de contar chistes
 def contar_chiste():
     """Selecciona un chiste aleatorio y lo muestra."""
+    db_logger.log_question(f"funcion de chistes")
     chiste = random.choice(CHISTES)
     eel.updateResponse(chiste)
 
@@ -132,6 +133,8 @@ def convertir_numero(texto):
 
 # Abrir apps
 def abrir_aplicacion(nombre):
+    
+    db_logger.log_question(f"funcion de abrir programa")
     """Abre una aplicación o una URL según el diccionario."""
     app = APLICACIONES.get(nombre)
     if app:
@@ -193,12 +196,14 @@ def bajar_volumen(decremento=10):
     
     volumen.SetMasterVolumeLevelScalar(nuevo_volumen / 100, None)
     eel.updateResponse(f"Volumen reducido a {int(nuevo_volumen)}%")
+
 #COntrolar brillo
 def ajustar_brillo(porcentaje):
     """Ajusta el brillo de la pantalla al porcentaje indicado (0-100)."""
     try:
         sbc.set_brightness(porcentaje)
         eel.updateResponse(f"Brillo ajustado a {porcentaje}%")
+        db_logger.log_question(f"ajustar brillo {porcentaje}%")
     except Exception as e:
         eel.updateResponse("No se pudo cambiar el brillo.")
         print(f"Error al ajustar brillo: {e}")
@@ -285,6 +290,7 @@ def ejecutar_comando(comando):
         return
 
     if "abrir" in comando:
+
         nombre_app = comando.replace("abrir", "").strip()
         abrir_aplicacion(nombre_app)
         return
