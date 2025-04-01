@@ -11,7 +11,7 @@ from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 import re
-from modules import db_logger
+
 spotify = SpotifyControl()
 
 VALORES_NIVELES = {
@@ -66,7 +66,6 @@ CHISTES = [
 # Añade funcion de contar chistes
 def contar_chiste():
     """Selecciona un chiste aleatorio y lo muestra."""
-    db_logger.log_question(f"funcion de chistes")
     chiste = random.choice(CHISTES)
     eel.updateResponse(chiste)
 
@@ -102,27 +101,27 @@ def ajustar_nivel(comando):
         elif tipo == "brillo":
             ajustar_brillo(valor)
     else:
-        eel.updateResponse("No entendí el comando correctamente.")
+        update_response_with_delay("No entendí el comando correctamente.")
                            
 def clima_comando(city="Santa Lucía Cotzumalguapa, GT"):
     """Comando para obtener el clima actual de una ciudad."""
     print(get_weather(city))  # Muestra el clima actual
-    eel.updateResponse(get_weather(city))
+    update_response_with_delay(get_weather(city))
 
 def pronostico_comando(city="Santa Lucía Cotzumalguapa, GT", days=3):
     """Comando para obtener el pronóstico de clima para los próximos días."""
     print(get_forecast(city, days))  # Muestra el pronóstico para los próximos días
-    eel.updateResponse(get_forecast(city, days))
+    update_response_with_delay(get_forecast(city, days))
 
 def clima_ciudad_comando(city):
     """Comando para obtener el clima actual de una ciudad específica."""
     print(get_weather(city))  # Muestra el clima actual de la ciudad especificada
-    eel.updateResponse(get_weather(city))
+    update_response_with_delay(get_weather(city))
 
 def pronostico_ciudad_comando(city, days=3):
     """Comando para obtener el pronóstico de clima de una ciudad específica."""
     print(get_forecast(city, days))  # Muestra el pronóstico para los próximos días de la ciudad especificada
-    eel.updateResponse(get_forecast(city, days))
+    update_response_with_delay(get_forecast(city, days))
 
 def convertir_numero(texto):
     """Convierte palabras a números (Ej: 'cincuenta' → 50)."""
@@ -140,12 +139,12 @@ def abrir_aplicacion(nombre):
     if app:
         if "exe" in app:
             subprocess.Popen(app["exe"], shell=True)
-            eel.updateResponse(f"Abriendo {nombre}...")
+            update_response_with_delay(f"Abriendo {nombre}...")
         elif "url" in app:
             webbrowser.open(app["url"])
-            eel.updateResponse(f"Reproduciendo {nombre}...")
+            update_response_with_delay(f"Reproduciendo {nombre}...")
     else:
-        eel.updateResponse(f"No tengo registrado {nombre}.")
+        update_response_with_delay(f"No tengo registrado {nombre}.")
 
 # Cerrar apps
 def cerrar_aplicacion(nombre):
@@ -156,11 +155,11 @@ def cerrar_aplicacion(nombre):
         for proceso in psutil.process_iter(attrs=['pid', 'name']):
             if proceso.info['name'].lower() == proceso_nombre:
                 psutil.Process(proceso.info['pid']).terminate()
-                eel.updateResponse(f"Cerrando {nombre}...")
+                update_response_with_delay(f"Cerrando {nombre}...")
                 return
-        eel.updateResponse(f"{nombre} no está en ejecución.")
+        update_response_with_delay(f"{nombre} no está en ejecución.")
     else:
-        eel.updateResponse(f"No puedo cerrar {nombre}.")
+        update_response_with_delay(f"No puedo cerrar {nombre}.")
 
 # COntrol volumen
 def ajustar_volumen(porcentaje):
@@ -171,7 +170,7 @@ def ajustar_volumen(porcentaje):
     
     # Normalizar el volumen al rango entre 0.0 y 1.0
     volumen.SetMasterVolumeLevelScalar(porcentaje / 100, None)
-    eel.updateResponse(f"Volumen ajustado a {porcentaje}%")
+    update_response_with_delay(f"Volumen ajustado a {porcentaje}%")
 
 def subir_volumen(incremento=10):
     """Sube el volumen del sistema en un porcentaje determinado."""
@@ -183,7 +182,7 @@ def subir_volumen(incremento=10):
     nuevo_volumen = min(100, volumen_actual + incremento)  # Máximo 100%
     
     volumen.SetMasterVolumeLevelScalar(nuevo_volumen / 100, None)
-    eel.updateResponse(f"Volumen aumentado a {int(nuevo_volumen)}%")
+    update_response_with_delay(f"Volumen aumentado a {int(nuevo_volumen)}%")
 
 def bajar_volumen(decremento=10):
     """Baja el volumen del sistema en un porcentaje determinado."""
@@ -196,16 +195,14 @@ def bajar_volumen(decremento=10):
     
     volumen.SetMasterVolumeLevelScalar(nuevo_volumen / 100, None)
     eel.updateResponse(f"Volumen reducido a {int(nuevo_volumen)}%")
-
 #COntrolar brillo
 def ajustar_brillo(porcentaje):
     """Ajusta el brillo de la pantalla al porcentaje indicado (0-100)."""
     try:
         sbc.set_brightness(porcentaje)
         eel.updateResponse(f"Brillo ajustado a {porcentaje}%")
-        db_logger.log_question(f"ajustar brillo {porcentaje}%")
     except Exception as e:
-        eel.updateResponse("No se pudo cambiar el brillo.")
+        update_response_with_delay("No se pudo cambiar el brillo.")
         print(f"Error al ajustar brillo: {e}")
 
 def subir_brillo(incremento=10):
@@ -214,9 +211,9 @@ def subir_brillo(incremento=10):
         brillo_actual = sbc.get_brightness(display=0)[0]  # Obtener brillo actual
         nuevo_brillo = min(100, brillo_actual + incremento)  # Máximo 100%
         sbc.set_brightness(nuevo_brillo)
-        eel.updateResponse(f"Brillo aumentado a {nuevo_brillo}%")
+        update_response_with_delay(f"Brillo aumentado a {nuevo_brillo}%")
     except Exception as e:
-        eel.updateResponse("No se pudo aumentar el brillo.")
+        update_response_with_delay("No se pudo aumentar el brillo.")
         print(f"Error al subir brillo: {e}")
 
 def bajar_brillo(decremento=10):
@@ -225,9 +222,9 @@ def bajar_brillo(decremento=10):
         brillo_actual = sbc.get_brightness(display=0)[0]
         nuevo_brillo = max(0, brillo_actual - decremento)  # Mínimo 0%
         sbc.set_brightness(nuevo_brillo)
-        eel.updateResponse(f"Brillo reducido a {nuevo_brillo}%")
+        update_response_with_delay(f"Brillo reducido a {nuevo_brillo}%")
     except Exception as e:
-        eel.updateResponse("No se pudo reducir el brillo.")
+        update_response_with_delay("No se pudo reducir el brillo.")
         print(f"Error al bajar brillo: {e}")
 
 # Controlar música
@@ -236,35 +233,50 @@ def controlar_musica(comando):
     try:
         if "pausa" in comando:
             spotify.pause_playback()
-            eel.updateResponse("Música pausada")
+            update_response_with_delay("Música pausada")
         elif "reproducir" in comando:
             spotify.start_playback()
-            eel.updateResponse("Reproduciendo música")
+            update_response_with_delay("Reproduciendo música")
         elif "siguiente" in comando:
             spotify.next_track()
-            eel.updateResponse("Siguiente canción")
+            update_response_with_delay("Siguiente canción")
         elif "anterior" in comando:
             spotify.previous_track()
-            eel.updateResponse("Canción anterior")
+            update_response_with_delay("Canción anterior")
         elif "volumen" in comando:
             palabras = comando.split()
             numeros = [convertir_numero(word) for word in palabras if convertir_numero(word) is not None]
             if numeros:
                 vol = numeros[0]
                 spotify.set_volume(vol)
-                eel.updateResponse(f"Volumen ajustado a {vol}%")
+                update_response_with_delay(f"Volumen ajustado a {vol}%")
             else:
-                eel.updateResponse("No entendí el nivel de volumen.")
+                update_response_with_delay("No entendí el nivel de volumen.")
         elif "que suena" in comando:
             track_info = spotify.get_current_track()
             if track_info:
                 nombre_cancion = track_info.split("]")[-1].strip()
-                eel.updateResponse(f" {nombre_cancion}")
+                update_response_with_delay(f" {nombre_cancion}")
             else:
-                eel.updateResponse("No se pudo obtener la información de la canción.")
+                update_response_with_delay("No se pudo obtener la información de la canción.")
     except Exception as e:
-        eel.updateResponse("Hubo un problema con Spotify. Verifica que la aplicación esté abierta y que un dispositivo esté activo.")
+        update_response_with_delay("Hubo un problema con Spotify. Verifica que la aplicación esté abierta y que un dispositivo esté activo.")
         print(f"Error en controlar_musica: {e}")
+
+def extraer_categoria(comando):
+    """Extrae la categoría del comando."""
+    
+    # Lista de palabras clave para categorías
+    palabras_categorias = ["miedo", "programación", "chiste negro", "navidad", "raro","raros"]
+    
+    # Buscar la categoría en el comando
+    for palabra in palabras_categorias:
+        if palabra in comando.lower():
+            return palabra
+    
+    # Si no se encuentra ninguna categoría, devolver "chiste" como valor predeterminado
+    return "chiste"
+
 
 # Función para ejecutar comandos
 def ejecutar_comando(comando):
@@ -276,12 +288,12 @@ def ejecutar_comando(comando):
         if song_name:
             try:
                 respuesta = spotify.start_playback(song_name)
-                eel.updateResponse(respuesta)
+                update_response_with_delay(respuesta)
             except Exception as e:
-                eel.updateResponse("Error al reproducir la canción. Verifica si tienes un dispositivo activo en Spotify.")
+                update_response_with_delay("Error al reproducir la canción. Verifica si tienes un dispositivo activo en Spotify.")
                 print(f"Error en reproducir canción: {e}")
         else:
-            eel.updateResponse("No entendí qué canción quieres reproducir.")
+            update_response_with_delay("No entendí qué canción quieres reproducir.")
         return
 
     if "cerrar" in comando:
@@ -315,10 +327,12 @@ def ejecutar_comando(comando):
         ajustar_nivel(comando)
         return
     
-    if "cuéntame un chiste" in comando or "dime un chiste" in comando:
-        contar_chiste()
+    if any(palabra in comando for palabra in ["chiste", "cuéntame un chiste", "dime un chiste", "cuenta un chiste"]):
+        # Extraer la categoría del comando
+        categoria = extraer_categoria(comando)
+        contar_chiste(categoria)
         return
-   
+
     # Comando para "clima mañana" o "pronóstico mañana"
     if "clima" in comando and "mañana" in comando:
         # Limpiar el comando para extraer la ciudad correctamente

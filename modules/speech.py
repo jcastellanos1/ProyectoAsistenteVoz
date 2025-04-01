@@ -6,7 +6,8 @@ import json
 import sounddevice as sd
 
 # Ruta al modelo en español
-MODEL_ES = r"D:\vosk-model-es-0.42"
+MODEL_ES = r"C:\Users\jose5\Desktop\vosk-model-es-0.42"
+
 
 # Cargar el modelo
 if not os.path.exists(MODEL_ES):
@@ -18,11 +19,23 @@ model_es = vosk.Model(MODEL_ES)
 # Cola para almacenar datos de audio
 q = queue.Queue()
 
+# Variable global para controlar el estado de escucha
+is_listening = True
+
+def set_listening_state(state):
+    """Controla el estado de escucha del reconocimiento de voz."""
+    global is_listening
+    is_listening = state
+
 def callback(indata, frames, time, status):
     """Función de callback para capturar audio."""
+    global is_listening
     if status:
         print(status, file=sys.stderr)
-    q.put(bytes(indata))
+    if is_listening:
+        q.put(bytes(indata))
+    else:
+        q.put(bytes(b'\x00' * len(indata)))  # Enviar silencio cuando no está escuchando
 
 def reconocer_voz(procesar_comando):
     """Reconoce voz en tiempo real y ejecuta comandos."""
@@ -36,6 +49,8 @@ def reconocer_voz(procesar_comando):
             if rec_es.AcceptWaveform(data):
                 result = json.loads(rec_es.Result())
                 texto = result.get("text", "")
-                if texto:
+                if texto and is_listening:
                     print(f"Has dicho: {texto}")
-                    procesar_comando(texto)  # Llama a la función de ejecución de comandos
+                    set_listening_state(False)  # Pausar escucha antes de procesar
+                    procesar_comando(texto)
+                    set_listening_state(True)  # Reanudar escucha después de procesar
