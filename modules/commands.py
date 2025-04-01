@@ -15,6 +15,7 @@ import requests
 from googletrans import Translator
 from modules.speech import set_listening_state
 import time
+from modules import db_logger
 
 VALORES_NIVELES = {
     "cero": 0,
@@ -163,6 +164,7 @@ def convertir_numero(texto):
 
 # Abrir apps
 def abrir_aplicacion(nombre):
+    db_logger.log_question(f"funcion de abrir apps")
     """Abre una aplicación o una URL según el diccionario."""
     app = APLICACIONES.get(nombre)
     if app:

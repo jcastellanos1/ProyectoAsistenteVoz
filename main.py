@@ -4,6 +4,11 @@ import pyautogui
 from flask import Flask
 from modules.speech import reconocer_voz
 from modules.commands import ejecutar_comando
+from modules import db_logger
+
+#incia la BD
+db_logger.init_db()
+
 
 # Inicializar Eel
 eel.init('web')

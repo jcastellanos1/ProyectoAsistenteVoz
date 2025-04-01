@@ -14,3 +14,4 @@ requests==2.31.0
 googletrans==3.1.0a0
 webbrowser-patcher==0.5.0
 locale==0.1.0
+sqlite3==3.49.1
