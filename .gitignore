@@ -16,3 +16,6 @@ ProyectoAsistenteVoz/
 Modelos_voz/
 .cache
 .env
+
+#base de datos local 
+.db
