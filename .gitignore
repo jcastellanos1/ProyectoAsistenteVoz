@@ -5,19 +5,16 @@ __pycache__/
 *.pyd
 
 # Caché de Python y otros archivos temporales
-.cache/
+.cache
 
-# Archivo de entorno
-ProyectoAsistenteVoz/
+# Archivos de entorno
+.env
 *.env
-.cache
 
-#Ignorar modelo de voz
-Modelos_voz/
-.cache
-.env
-
-#base de datos local 
-.db
-.env
+# Base de datos local
 *.db
+assistant_logs.db
+
+# Directorios que no deseas versionar
+ProyectoAsistenteVoz/
+Modelos_voz/
