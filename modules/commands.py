@@ -71,6 +71,19 @@ def update_response_with_delay(mensaje, delay=1):
     time.sleep(delay)  # Espera el tiempo especificado
     set_listening_state(True)
 
+def responder_preguntas_frecuentes():
+    top = db_logger.obtener_top_preguntas()
+    
+    if not top:
+        respuesta = "Aún no tengo preguntas registradas."
+    else:
+        respuesta = "Las preguntas más comunes son: "
+        preguntas = [q[0] for q in top]
+        respuesta += ", ".join(preguntas)
+
+    update_response_with_delay(respuesta, 5)
+
+
 def contar_chiste(categoria):
     db_logger.log_question(f"contar chiste de ")
     """Obtiene un chiste de la categoría especificada y lo muestra."""
@@ -165,7 +178,7 @@ def convertir_numero(texto):
 
 # Abrir apps
 def abrir_aplicacion(nombre):
-    db_logger.log_question(f"abrir apliacion")
+    db_logger.log_question(f"abrir aplicacion")
     """Abre una aplicación o una URL según el diccionario."""
     app = APLICACIONES.get(nombre)
     if app:
@@ -242,7 +255,7 @@ def ajustar_brillo(porcentaje):
         print(f"Error al ajustar brillo: {e}")
 
 def subir_brillo(incremento=10):
-    db_logger.log_question(f"subir el brillo")
+    db_logger.log_question(f"subir  brillo")
     """Aumenta el brillo de la pantalla en el porcentaje indicado."""
     try:
         brillo_actual = sbc.get_brightness(display=0)[0]  # Obtener brillo actual
@@ -318,6 +331,11 @@ def extraer_categoria(comando):
 def ejecutar_comando(comando):
     """Procesa el comando de voz y ejecuta la acción correspondiente."""
     eel.updateText(f"Has dicho: {comando}")
+    
+    if any(frase in comando for frase in ["preguntas frecuentes", "preguntas más comunes", "sugerencias comunes", "cosas más preguntadas"]):
+        responder_preguntas_frecuentes()
+        return
+
 
     if "reproduce" in comando or "pon" in comando:
         song_name = comando.replace("reproduce", "").replace("pon", "").strip()
@@ -368,7 +386,7 @@ def ejecutar_comando(comando):
         categoria = extraer_categoria(comando)
         contar_chiste(categoria)
         return
-
+    
     # Comando para "clima mañana" o "pronóstico mañana"
     if "clima" in comando and "mañana" in comando:
         # Limpiar el comando para extraer la ciudad correctamente

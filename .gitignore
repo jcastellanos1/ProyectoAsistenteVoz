@@ -20,7 +20,5 @@ Modelos_voz/
 #base de datos local 
 .db
 .env
-*.db
-.env
 .env
 assistant_logs.db
