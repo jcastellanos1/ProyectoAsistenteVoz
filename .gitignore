@@ -5,7 +5,7 @@ __pycache__/
 *.pyd
 
 # Caché de Python y otros archivos temporales
-.cache/
+.cache
 
 # Archivos de entorno
 .env
