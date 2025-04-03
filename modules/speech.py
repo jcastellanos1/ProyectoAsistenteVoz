@@ -3,6 +3,7 @@ import queue
 import sys
 import vosk
 import json
+from dotenv import load_dotenv
 import sounddevice as sd
 
 # Ruta al modelo en español
