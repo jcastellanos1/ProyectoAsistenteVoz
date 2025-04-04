@@ -77,15 +77,29 @@ def responder_preguntas_frecuentes():
     if not top:
         respuesta = "Aún no tengo preguntas registradas."
     else:
-        respuesta = "Las preguntas más comunes son: "
+        respuesta = "Las preguntas más comunes que usas son: "
         preguntas = [q[0] for q in top]
         respuesta += ", ".join(preguntas)
 
     update_response_with_delay(respuesta, 5)
 
 
+
+def responder_preguntas_menos_frecuentes():
+    menos = db_logger.obtener_preguntas_menos_frecuentes()
+    
+    if not menos:
+        respuesta = "Aún no tengo suficientes preguntas registradas."
+    else:
+        respuesta = "Las preguntas menos frecuentes son: "
+        preguntas = [q[0] for q in menos]
+        respuesta += ", ".join(preguntas)
+
+    update_response_with_delay(respuesta, 5)
+
+
 def contar_chiste(categoria):
-    db_logger.log_question(f"contar chiste de ")
+    db_logger.log_question(f"contar un chiste de ")
     """Obtiene un chiste de la categoría especificada y lo muestra."""
     categoria_ingles = categorias.get(categoria.lower(), "Any") 
    
@@ -165,6 +179,7 @@ def clima_ciudad_comando(city):
     update_response_with_delay(get_weather(city))
 
 def pronostico_ciudad_comando(city, days=3):
+    db_logger.log_question(f"Pronostico en ")
     """Comando para obtener el pronóstico de clima de una ciudad específica."""
     print(get_forecast(city, days))  # Muestra el pronóstico para los próximos días de la ciudad especificada
     update_response_with_delay(get_forecast(city, days))
@@ -328,12 +343,17 @@ def extraer_categoria(comando):
 
 
 # Función para ejecutar comandos
+
 def ejecutar_comando(comando):
     """Procesa el comando de voz y ejecuta la acción correspondiente."""
     eel.updateText(f"Has dicho: {comando}")
     
     if any(frase in comando for frase in ["preguntas frecuentes", "preguntas más comunes", "sugerencias comunes", "cosas más preguntadas"]):
         responder_preguntas_frecuentes()
+        return
+
+    if any(frase in comando for frase in ["preguntas menos frecuentes", "menos preguntadas", "preguntas raras", "lo menos común"]):
+        responder_preguntas_menos_frecuentes()
         return
 
 
