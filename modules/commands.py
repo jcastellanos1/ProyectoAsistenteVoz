@@ -42,7 +42,9 @@ APLICACIONES = {
     "navegador": {"exe": r"C:\Program Files\Google\Chrome\Application\chrome.exe"},
     "rola": {"url": "https://www.youtube.com/watch?v=nnrp3drhw0k&t=90"},
     "lobo": {"url": "https://www.youtube.com/watch?v=ckkL7-KPD_E&t=48"},
-    "criminal": {"url": "https://www.youtube.com/watch?v=VqEbCxg2bNI&t=80"}
+    "criminal": {"url": "https://www.youtube.com/watch?v=VqEbCxg2bNI&t=80"},
+    "edith durísimo": {"url": "https://www.youtube.com/watch?v=XuNeBVetBiw"},
+    "mono en evolución": {"url": "https://www.youtube.com/watch?v=Inbg9Pcu7u8"}
 }
 
 spotify = SpotifyControl()
