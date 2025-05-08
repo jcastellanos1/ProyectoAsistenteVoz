@@ -1,6 +1,5 @@
 
 import requests
-import json
 
 MODEL_NAME = "gemma3:1b"  
 
@@ -51,28 +50,26 @@ def obtener_respuesta_ia(pregunta):
     except Exception as e:
         print("Error al conectarse con Ollama:", e)
         return "⚠️ No se pudo conectar con el modelo de IA."
+    
 def obtener_intencion(texto_usuario):
     prompt = (
-        "Tu tarea es analizar el mensaje del usuario y devolver un JSON con la intención y, si aplica, una entidad clave.\n"
-        "Debes usar solo una de estas intenciones: abrir_app, cerrar_app, reproducir_musica, volumen, brillo, clima, chiste, preguntas_frecuentes, pregunta_ia, desconocido.\n"
-        "Si el mensaje no corresponde claramente a una intención, responde con 'desconocido'.\n"
-        "Formato de respuesta (solo JSON):\n"
-        "{ \"intencion\": \"abrir_app\", \"entidad\": \"bloc de notas\" }\n"
+        "Eres un sistema de clasificación de comandos por voz para un asistente virtual.\n"
+        "Tu tarea es identificar con precisión la intención del usuario y la entidad relevante.\n"
+        "Debes responder únicamente con dos líneas:\n"
+        "- Línea 1: una de las siguientes intenciones (sin comillas):\n"
+        "  abrir_app, cerrar_app, reproducir_musica, volumen, brillo, clima, chiste, preguntas_frecuentes, pregunta_ia, desconocido\n"
+        "- Línea 2: la entidad correspondiente (ej: 'Spotify', 'bloc de notas') o 'null' si no aplica.\n"
         "Ejemplos:\n"
-        "Usuario: abre Spotify\n"
-        "{ \"intencion\": \"abrir_app\", \"entidad\": \"spotify\" }\n"
-        "Usuario: cuéntame un chiste\n"
-        "{ \"intencion\": \"chiste\", \"entidad\": null }\n"
-        "Usuario: cuál es el clima en Madrid\n"
-        "{ \"intencion\": \"clima\", \"entidad\": \"Madrid\" }\n"
-        "Usuario: quiero escuchar música\n"
-        "{ \"intencion\": \"reproducir_musica\", \"entidad\": null }\n"
-        "Usuario: quiero que habrás bloc de notas\n"
-        "{ \"intencion\": \"abrir_app\", \"entidad\": \"bloc de notas\" }\n"
-        "Usuario: qué opinas de la IA\n"
-        "{ \"intencion\": \"pregunta_ia\", \"entidad\": null }\n"
-        f"Usuario: {texto_usuario}\n"
-        "Respuesta JSON:"
+        "Entrada: abre Spotify\n"
+        "abrir_app\nSpotify\n"
+        "Entrada: cuéntame un chiste\n"
+        "chiste\nnull\n"
+        "Entrada: cuál es el clima en Madrid mañana\n"
+        "clima\nMadrid\n"
+        "Entrada: qué opinas de la inteligencia artificial\n"
+        "pregunta_ia\nnull\n"
+        f"Entrada: {texto_usuario}\n"
+        "Respuesta:"
     )
 
     datos = {
@@ -80,18 +77,21 @@ def obtener_intencion(texto_usuario):
         "prompt": prompt,
         "stream": False,
         "temperature": 0,
-        "stop": ["Usuario:", "Asistente:", "\n\n"]
+        "stop": ["Entrada:"]
     }
 
     try:
         response = requests.post("http://localhost:11434/api/generate", json=datos)
         contenido = response.json()["response"]
-        print("Respuesta cruda del modelo:", contenido)
+        print("Salida del modelo:", contenido)
 
-        resultado = json.loads(contenido)
-        print("Intención detectada (JSON):", json.dumps(resultado, indent=2, ensure_ascii=False))
-        return resultado
+        lineas = contenido.strip().splitlines()
+        intencion = lineas[0].strip().lower()
+        entidad = lineas[1].strip() if len(lineas) > 1 else None
+        entidad = None if entidad.lower() == "null" else entidad
+
+        return intencion, entidad
 
     except Exception as e:
         print("Error al clasificar intención:", e)
-        return {"intencion": "desconocido", "entidad": None}
+        return "desconocido", None

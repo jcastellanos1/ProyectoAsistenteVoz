@@ -12,9 +12,7 @@ from modules.llm import obtener_respuesta_ia,obtener_intencion
 def ejecutar_comando(comando):
     eel.updateText(f"Has dicho: {comando}")
     
-    resultado = obtener_intencion(comando)
-    intencion = resultado.get("intencion", "desconocido")
-    entidad = resultado.get("entidad")
+    intencion, entidad = obtener_intencion(comando)
 
     match intencion:
         case "abrir_app":
@@ -24,9 +22,7 @@ def ejecutar_comando(comando):
         case "reproducir_musica":
             respuesta = spotify.start_playback(entidad or "")
             update_response_with_delay(respuesta)
-        case "volumen":
-            ajustar_nivel(comando)
-        case "brillo":
+        case "volumen" | "brillo":
             ajustar_nivel(comando)
         case "clima":
             if "mañana" in comando:
@@ -43,3 +39,4 @@ def ejecutar_comando(comando):
         case _:
             respuesta_ia = obtener_respuesta_ia(comando)
             eel.updateResponse(respuesta_ia)
+
