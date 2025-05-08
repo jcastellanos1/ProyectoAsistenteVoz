@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 import sounddevice as sd
 import threading  # Asegúrate de tenerlo importado
 
+
+load_dotenv()
+
 # Ruta al modelo en español
 MODEL_ES = os.getenv("URL_VOSK_MODEL")
 
