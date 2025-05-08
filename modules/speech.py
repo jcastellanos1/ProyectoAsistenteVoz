@@ -10,6 +10,9 @@ import threading  # Asegúrate de tenerlo importado
 
 load_dotenv()
 
+
+load_dotenv()
+
 # Ruta al modelo en español
 MODEL_ES = os.getenv("URL_VOSK_MODEL")
 
