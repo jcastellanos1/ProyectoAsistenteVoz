@@ -38,7 +38,7 @@ def ejecutar_comando(comando):
             contar_chiste(extraer_categoria(comando))
         case "preguntas_frecuentes":
             responder_preguntas_frecuentes()
-        case "pregutasn_menos_usadas":
+        case "preguntas_menos_frecuentes":
               responder_preguntas_menos_frecuentes()
         case "pregunta_ia":
             respuesta_ia = obtener_respuesta_ia(comando)
