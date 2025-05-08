@@ -18,23 +18,22 @@ def responder_preguntas_frecuentes():
     if not top:
         respuesta = "Aún no tengo preguntas registradas."
     else:
-        respuesta = "Las preguntas más comunes son: "
-        preguntas = [q[0] for q in top]
-        respuesta += ", ".join(preguntas)
+        preguntas = [q[0].capitalize() for q in top]
+        respuesta = "Las preguntas más comunes son: " + ", ".join(preguntas) + "."
 
     update_response_with_delay(respuesta, 5)
 
 def responder_preguntas_menos_frecuentes():
-    menos_frecuentes = db_logger.obtener_preguntas_menos_frecuentes()
+    menos_frecuentes = db_logger.obtener_low_preguntas()
     
     if not menos_frecuentes:
         respuesta = "Aún no tengo preguntas registradas."
     else:
-        respuesta = "Las preguntas menos comunes son: "
-        preguntas = [q[0] for q in menos_frecuentes]
-        respuesta += ", ".join(preguntas)
-    
+        preguntas = [q[0].capitalize() for q in menos_frecuentes]
+        respuesta = "Las preguntas menos comunes son: " + ", ".join(preguntas) + "."
+
     update_response_with_delay(respuesta, 5)
+
 
 
 def update_response_with_delay(mensaje, delay=1):
