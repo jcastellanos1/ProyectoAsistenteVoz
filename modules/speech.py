@@ -5,6 +5,7 @@ import vosk
 import json
 from dotenv import load_dotenv
 import sounddevice as sd
+import threading  # Asegúrate de tenerlo importado
 
 # Ruta al modelo en español
 MODEL_ES = os.getenv("URL_VOSK_MODEL")
@@ -38,7 +39,6 @@ def callback(indata, frames, time, status):
         q.put(bytes(b'\x00' * len(indata)))  # Enviar silencio cuando no está escuchando
 
 def reconocer_voz(procesar_comando):
-    """Reconoce voz en tiempo real y ejecuta comandos."""
     with sd.RawInputStream(samplerate=16000, blocksize=8000, dtype='int16',
                            channels=1, callback=callback):
         print("Escuchando... Habla ahora.")
@@ -49,8 +49,9 @@ def reconocer_voz(procesar_comando):
             if rec_es.AcceptWaveform(data):
                 result = json.loads(rec_es.Result())
                 texto = result.get("text", "")
-                if texto and is_listening:
+                if texto:
                     print(f"Has dicho: {texto}")
-                    set_listening_state(False)  # Pausar escucha antes de procesar
-                    procesar_comando(texto)
-                    set_listening_state(True)  # Reanudar escucha después de procesar
+                    threading.Thread(target=procesar_comando, args=(texto,), daemon=True).start()
+
+
+

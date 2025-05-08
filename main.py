@@ -3,7 +3,7 @@ import eel
 import pyautogui
 from flask import Flask
 from modules.speech import reconocer_voz
-from modules.commands import ejecutar_comando
+from modules.commands.voice_commands import ejecutar_comando
 from modules import db_logger
 
 #incia la BD
