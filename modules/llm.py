@@ -1,7 +1,7 @@
 
 import requests
 
-MODEL_NAME = "gemma3:1b"  
+MODEL_NAME = "gemma3:4b"  
 
 
 prompt_sistema = (
