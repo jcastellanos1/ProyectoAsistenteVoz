@@ -22,6 +22,12 @@ def start_listening():
     threading.Thread(target=reconocer_voz, args=(ejecutar_comando,), daemon=True).start()
 
 @eel.expose
+def get_least_common_questions():
+    least_common = db_logger.obtener_preguntas_menos_frecuentes()
+    return [{"question": q, "count": c} for q, c in least_common]
+
+
+@eel.expose
 def get_top_questions():
     top = db_logger.obtener_top_preguntas()
     return [{"question": q, "count": c} for q, c in top]

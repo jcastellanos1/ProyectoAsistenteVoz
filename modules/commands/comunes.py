@@ -24,6 +24,18 @@ def responder_preguntas_frecuentes():
 
     update_response_with_delay(respuesta, 5)
 
+def responder_preguntas_menos_frecuentes():
+    menos_frecuentes = db_logger.obtener_preguntas_menos_frecuentes()
+    
+    if not menos_frecuentes:
+        respuesta = "Aún no tengo preguntas registradas."
+    else:
+        respuesta = "Las preguntas menos comunes son: "
+        preguntas = [q[0] for q in menos_frecuentes]
+        respuesta += ", ".join(preguntas)
+    
+    update_response_with_delay(respuesta, 5)
+
 
 def update_response_with_delay(mensaje, delay=1):
     """Actualiza la respuesta en el frontend y la pronuncia en voz alta."""
