@@ -23,9 +23,8 @@ def start_listening():
 
 @eel.expose
 def get_least_common_questions():
-    least_common = db_logger.obtener_preguntas_menos_frecuentes()
+    least_common = db_logger.obtener_low_preguntas()
     return [{"question": q, "count": c} for q, c in least_common]
-
 
 @eel.expose
 def get_top_questions():
