@@ -62,12 +62,17 @@ def obtener_intencion(texto_usuario):
         "Ejemplos:\n"
         "Entrada: abre Spotify\n"
         "abrir_app\nSpotify\n"
+        "Entrada: preguntas más frecuentes"
+        "preguntas_frecuentes"
+        "Entrada: preguntas menos frecuentes"
+        "preguntas_menos_frecuentes"
         "Entrada: cuéntame un chiste\n"
         "chiste\nnull\n"
         "Entrada: cuál es el clima en Madrid mañana\n"
         "clima\nMadrid\n"
         "Entrada: qué opinas de la inteligencia artificial\n"
         "pregunta_ia\nnull\n"
+        
         f"Entrada: {texto_usuario}\n"
         "Respuesta:"
     )

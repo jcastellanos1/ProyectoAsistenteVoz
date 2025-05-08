@@ -36,10 +36,11 @@ def ejecutar_comando(comando):
                 clima_ciudad_comando(entidad or "")
         case "chiste":
             contar_chiste(extraer_categoria(comando))
-        case "preguntas_frecuentes":
-            responder_preguntas_frecuentes()
-        case "preguntas_menos_frecuentes":
-              responder_preguntas_menos_frecuentes()
+        case "preguntas":
+            if intencion == "preguntas_frecuentes":
+                responder_preguntas_frecuentes()
+            elif intencion == "preguntas_menos_frecuentes":
+             responder_preguntas_menos_frecuentes()
         case "pregunta_ia":
             respuesta_ia = obtener_respuesta_ia(comando)
             eel.updateResponse(respuesta_ia)
