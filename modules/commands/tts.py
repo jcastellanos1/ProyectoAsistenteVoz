@@ -1,13 +1,12 @@
-
-
 import pyttsx3
+import threading
 import time
 
-# Inicializa el motor de texto a voz
 engine = pyttsx3.init()
+voz_lock = threading.Lock()
 
-def hablar_respuesta(mensaje, delay=0.5):
-    """Habla el texto recibido sin controlar la escucha."""
-    engine.say(mensaje)
-    engine.runAndWait()
+def hablar_respuesta(texto, delay=1):
     time.sleep(delay)
+    with voz_lock:
+        engine.say(texto)
+        engine.runAndWait()

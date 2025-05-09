@@ -1,12 +1,14 @@
-from modules.commands.sistema import ajustar_nivel, subir_volumen, bajar_volumen, subir_brillo, bajar_brillo
+from modules.commands.sistema import ajustar_nivel
 from modules.commands.aplicaciones import abrir_aplicacion, cerrar_aplicacion
 from modules.commands.humor import contar_chiste, extraer_categoria
-from modules.commands.clima import clima_comando, clima_ciudad_comando, pronostico_comando, pronostico_ciudad_comando
+from modules.commands.clima import clima_ciudad_comando, pronostico_ciudad_comando
 from modules.commands.musica import controlar_musica, spotify
-from modules.commands.comunes  import responder_preguntas_frecuentes, update_response_with_delay
+from modules.commands.comunes import responder_preguntas_frecuentes, update_response_with_delay
 import eel
-from modules.llm import obtener_respuesta_ia,obtener_intencion
+from modules.llm import obtener_respuesta_ia, obtener_intencion
 
+# Lista de entidades reservadas que no deben usarse como nombre de canción
+ENTIDADES_CONTROL = ["que_suena", "pausar", "reproducir", "siguiente", "anterior"]
 
 # Función para ejecutar comandos
 def ejecutar_comando(comando):
@@ -20,8 +22,13 @@ def ejecutar_comando(comando):
         case "cerrar_app":
             cerrar_aplicacion(entidad)
         case "reproducir_musica":
-            respuesta = spotify.start_playback(entidad or "")
-            update_response_with_delay(respuesta)
+            if entidad and entidad.lower() not in ENTIDADES_CONTROL:
+                respuesta = spotify.start_playback(entidad)
+                update_response_with_delay(respuesta)
+            else:
+                controlar_musica("reproducir")
+        case "musica_control":
+            controlar_musica(entidad)
         case "volumen" | "brillo":
             ajustar_nivel(comando)
         case "clima":
@@ -39,4 +46,3 @@ def ejecutar_comando(comando):
         case _:
             respuesta_ia = obtener_respuesta_ia(comando)
             eel.updateResponse(respuesta_ia)
-
