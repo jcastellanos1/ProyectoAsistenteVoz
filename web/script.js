@@ -1,12 +1,11 @@
 document.addEventListener("DOMContentLoaded", async function () {
-    //  Verificar si hay una preferencia guardada en localStorage (Modo oscuro)
     const themeToggle = document.getElementById("theme-toggle");
+
     if (localStorage.getItem("theme") === "dark") {
         document.body.classList.add("dark-mode");
         themeToggle.checked = true;
     }
 
-    // Evento para cambiar el tema
     themeToggle.addEventListener("change", function () {
         if (themeToggle.checked) {
             document.body.classList.add("dark-mode");
@@ -19,25 +18,30 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 
-    //  Iniciar reconocimiento de voz automáticamente
-    eel.start_listening();
-
-    //  Inicializar síntesis de voz (Truco para evitar bloqueos)
+    // Inicializar síntesis de voz
     const synth = window.speechSynthesis;
-
     function inicializarVoz() {
         let utterance = new SpeechSynthesisUtterance(" ");
         synth.speak(utterance);
     }
-    inicializarVoz(); // Llamada al inicio para desbloquear el sistema
+    inicializarVoz();
 
     function hablarTexto(mensaje) {
         if (mensaje) {
-            synth.cancel(); // Cancela cualquier mensaje en cola
+            synth.cancel();
             const utterance = new SpeechSynthesisUtterance(mensaje);
             utterance.lang = "es-ES";
             utterance.rate = 1;
             utterance.pitch = 1;
+
+            eel.pausar_escucha(); // Pausar escucha antes de hablar
+
+            // Reanudar escucha después de hablar
+            utterance.onend = () => {
+                console.log("✅ Texto hablado, reanudando escucha...");
+                eel.reanudar_escucha();
+            };
+
             synth.speak(utterance);
         }
     }
@@ -45,19 +49,38 @@ document.addEventListener("DOMContentLoaded", async function () {
     async function esperarVocesYHablar() {
         await new Promise((resolve) => {
             let voces = synth.getVoices();
-            if (voces.length > 0) {
-                resolve();
-            } else {
-                synth.onvoiceschanged = () => resolve();
-            }
+            if (voces.length > 0) resolve();
+            else synth.onvoiceschanged = () => resolve();
         });
 
-        setTimeout(() => hablarTexto("Hola, soy Ozuna Assistant, ¿en qué puedo ayudarte?"), 1500);
+        const mensaje = "Hola, soy Ozuna Assistant, ¿en qué puedo ayudarte?";
+        const utterance = new SpeechSynthesisUtterance(mensaje);
+        utterance.lang = "es-ES";
+        utterance.rate = 1;
+        utterance.pitch = 1;
+
+        eel.pausar_escucha(); // Pausar escucha durante el saludo
+
+        // ⏱️ Plan B: Iniciar escucha manualmente si onend no se dispara
+        let inicioForzado = setTimeout(() => {
+            console.warn("⚠️ No se detectó onend. Iniciando escucha forzada...");
+            eel.reanudar_escucha();
+            eel.start_listening();
+        }, 5000); // 5 segundos como margen seguro
+
+        utterance.onend = () => {
+            clearTimeout(inicioForzado);
+            console.log("✅ Saludo finalizado, iniciando escucha");
+            eel.reanudar_escucha();
+            eel.start_listening();
+        };
+
+        synth.speak(utterance);
     }
 
-    esperarVocesYHablar(); // ⬅ Ahora sí el saludo debería funcionar bien 
+    esperarVocesYHablar();
 
-    //  Animación visual del micrófono (Efecto círculo)
+    // Animación visual del micrófono
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const audioContext = new AudioContext();
@@ -71,10 +94,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         function animate() {
             analyser.getByteFrequencyData(dataArray);
             let volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-            let scale = Math.max(1, Math.min((volume - 5) / 30, 2.5)); // Ajuste de sensibilidad
+            let scale = Math.max(1, Math.min((volume - 35) / 30, 2.5));
             circle.style.transform = `scale(${scale})`;
-            let glowIntensity = Math.min(volume * 3, 150);
-            circle.style.boxShadow = `0 0 ${40 + glowIntensity}px #1E90FF, 0 0 ${50 + glowIntensity}px rgba(30, 144, 255, 1), 0 0 ${120 + glowIntensity}px rgba(30, 144, 255, 0.8), 0 0 ${160 + glowIntensity}px rgba(30, 144, 255, 0.6)`;
+            let glow = Math.min(volume * 3, 150);
+            circle.style.boxShadow = `0 0 ${40 + glow}px #1E90FF, 0 0 ${50 + glow}px rgba(30, 144, 255, 1), 0 0 ${120 + glow}px rgba(30, 144, 255, 0.8)`;
             requestAnimationFrame(animate);
         }
         animate();
@@ -82,27 +105,29 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.error('Error accediendo al micrófono:', err);
     }
 
-    // Exponer funciones de actualización de texto y respuesta con Eel
+    // Exposición para Eel: Texto transcrito
     eel.expose(updateText);
     function updateText(text) {
         document.getElementById("texto").innerText = text;
     }
 
+    // Exposición para Eel: Respuesta del asistente
     eel.expose(updateResponse);
     function updateResponse(respuesta) {
-        document.getElementById("respuesta").innerText = respuesta;
+        const respuestaEl = document.getElementById("respuesta");
+        respuestaEl.classList.remove("visible");
+        respuestaEl.textContent = respuesta;
+        void respuestaEl.offsetWidth;
+        respuestaEl.classList.add("visible");
         hablarTexto(respuesta);
-        cargarTopPreguntas();
     }
 
-    // Cargar preguntas más frecuentes (nueva funcionalidad)
+    // Preguntas frecuentes
     async function cargarTopPreguntas() {
-        console.log("Cargando preguntas más frecuentes...");
         const top = await eel.get_top_questions()();
-        console.log("Respuesta desde eel:", top);  // 👈 clave
         const lista = document.getElementById("question-list");
         lista.innerHTML = "";
-    
+
         if (top.length === 0) {
             lista.innerHTML = "<li>No hay preguntas registradas aún.</li>";
         } else {
@@ -113,7 +138,13 @@ document.addEventListener("DOMContentLoaded", async function () {
             });
         }
     }
-    
 
     cargarTopPreguntas();
+
+    // Botón de limpieza
+    const clearBtn = document.getElementById("clear");
+    clearBtn.addEventListener("click", () => {
+        document.getElementById("texto").innerText = "";
+        document.getElementById("respuesta").innerText = "";
+    });
 });

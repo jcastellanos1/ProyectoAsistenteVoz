@@ -3,13 +3,10 @@ import queue
 import sys
 import vosk
 import json
+import re
 from dotenv import load_dotenv
 import sounddevice as sd
-import threading  # Asegúrate de tenerlo importado
-
-
-load_dotenv()
-
+import threading
 
 load_dotenv()
 
@@ -34,6 +31,12 @@ def set_listening_state(state):
     global is_listening
     is_listening = state
 
+def es_texto_valido(texto):
+    """Filtra entradas irrelevantes como muletillas o frases vacías."""
+    texto = texto.strip().lower()
+    patrones_ignorados = r"^(eh+|ah+|mm+|aja+|sí+|no+|ok+|vale+|gracias+|ya|listo)$"
+    return bool(texto and len(texto.split()) > 1 and not re.fullmatch(patrones_ignorados, texto))
+
 def callback(indata, frames, time, status):
     """Función de callback para capturar audio."""
     global is_listening
@@ -41,8 +44,7 @@ def callback(indata, frames, time, status):
         print(status, file=sys.stderr)
     if is_listening:
         q.put(bytes(indata))
-    else:
-        q.put(bytes(b'\x00' * len(indata)))  # Enviar silencio cuando no está escuchando
+    # No enviar silencio, para evitar confundir al reconocedor
 
 def reconocer_voz(procesar_comando):
     with sd.RawInputStream(samplerate=16000, blocksize=8000, dtype='int16',
@@ -51,13 +53,16 @@ def reconocer_voz(procesar_comando):
         rec_es = vosk.KaldiRecognizer(model_es, 16000)
 
         while True:
+            if not is_listening:
+                sd.sleep(100)  # Pausa breve si está en modo silencio
+                continue
+
             data = q.get()
             if rec_es.AcceptWaveform(data):
                 result = json.loads(rec_es.Result())
                 texto = result.get("text", "")
-                if texto:
+                if es_texto_valido(texto):
                     print(f"Has dicho: {texto}")
                     threading.Thread(target=procesar_comando, args=(texto,), daemon=True).start()
-
-
-
+                else:
+                    print(f"(Ignorado): {texto}")
