@@ -3,6 +3,7 @@ import eel
 import pyautogui
 from flask import Flask
 from modules.speech import reconocer_voz
+from modules.speech import set_listening_state
 from modules.commands.voice_commands import ejecutar_comando
 from modules import db_logger
 
@@ -31,6 +32,11 @@ def reanudar_escucha():
 def start_listening():
     print("[INFO] start_listening llamado desde JS")  #  DEBUG
     threading.Thread(target=reconocer_voz, args=(ejecutar_comando,), daemon=True).start()
+
+@eel.expose
+def simular_comando(texto):
+    print(f"[Simulación] Ejecutando pregunta: {texto}")
+    return ejecutar_comando(texto)  # Usa tu lógica normal de comandos
 
 
 @eel.expose

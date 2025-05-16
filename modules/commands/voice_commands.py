@@ -13,36 +13,43 @@ ENTIDADES_CONTROL = ["que_suena", "pausar", "reproducir", "siguiente", "anterior
 # Función para ejecutar comandos
 def ejecutar_comando(comando):
     eel.updateText(f"Has dicho: {comando}")
-    
     intencion, entidad = obtener_intencion(comando)
 
     match intencion:
         case "abrir_app":
             abrir_aplicacion(entidad)
+            return f"Abriendo {entidad}"  # 🔄
         case "cerrar_app":
             cerrar_aplicacion(entidad)
+            return f"Cerrando {entidad}"  # 🔄
         case "reproducir_musica":
             if entidad and entidad.lower() not in ENTIDADES_CONTROL:
                 respuesta = spotify.start_playback(entidad)
                 update_response_with_delay(respuesta)
+                return respuesta  # 🔄
             else:
                 controlar_musica("reproducir")
+                return "Reproduciendo música"  # 🔄
         case "musica_control":
             controlar_musica(entidad)
+            return f"Control de música: {entidad}"  # 🔄
         case "volumen" | "brillo":
             ajustar_nivel(comando)
+            return "Ajuste aplicado"  # 🔄
         case "clima":
             if "mañana" in comando:
                 pronostico_ciudad_comando(entidad or "", 1)
+                return "Mostrando pronóstico del clima para mañana"  # 🔄
             else:
                 clima_ciudad_comando(entidad or "")
+                return "Mostrando clima actual"  # 🔄
         case "chiste":
-            contar_chiste(extraer_categoria(comando))
-        case "preguntas_frecuentes":
-            responder_preguntas_frecuentes()
+            return contar_chiste(extraer_categoria(comando))  # 🔄
         case "pregunta_ia":
             respuesta_ia = obtener_respuesta_ia(comando)
             eel.updateResponse(respuesta_ia)
+            return respuesta_ia  # 🔄
         case _:
             respuesta_ia = obtener_respuesta_ia(comando)
             eel.updateResponse(respuesta_ia)
+            return respuesta_ia  # 🔄

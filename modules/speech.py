@@ -28,6 +28,7 @@ is_listening = True
 
 def set_listening_state(state):
     """Controla el estado de escucha del reconocimiento de voz."""
+    print(f"[DEBUG] Estado de escucha: {state}")
     global is_listening
     is_listening = state
 

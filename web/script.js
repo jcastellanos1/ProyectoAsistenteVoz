@@ -80,30 +80,47 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     esperarVocesYHablar();
 
-    // Animación visual del micrófono
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const audioContext = new AudioContext();
-        const analyser = audioContext.createAnalyser();
-        const source = audioContext.createMediaStreamSource(stream);
-        source.connect(analyser);
-        analyser.fftSize = 512;
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-        const circle = document.querySelector('.circle');
+    // Variable global que ya deberías tener
 
-        function animate() {
-            analyser.getByteFrequencyData(dataArray);
+try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const audioContext = new AudioContext();
+    const analyser = audioContext.createAnalyser();
+    const source = audioContext.createMediaStreamSource(stream);
+    source.connect(analyser);
+    analyser.fftSize = 512;
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    const circle = document.querySelector('.circle');
+
+    function animate() {
+        analyser.getByteFrequencyData(dataArray);
+
+        if (micMuted) {
+            // Visual de micrófono apagado
+            circle.style.transform = `scale(1)`;
+            circle.style.boxShadow = `0 0 20px gray`;
+        } else {
+            // Visual de micrófono activo
             let volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
             let scale = Math.max(1, Math.min((volume - 35) / 30, 2.5));
-            circle.style.transform = `scale(${scale})`;
             let glow = Math.min(volume * 3, 150);
-            circle.style.boxShadow = `0 0 ${40 + glow}px #1E90FF, 0 0 ${50 + glow}px rgba(30, 144, 255, 1), 0 0 ${120 + glow}px rgba(30, 144, 255, 0.8)`;
-            requestAnimationFrame(animate);
+
+            circle.style.transform = `scale(${scale})`;
+            circle.style.boxShadow = `
+                0 0 ${40 + glow}px #1E90FF,
+                0 0 ${50 + glow}px rgba(30, 144, 255, 1),
+                0 0 ${120 + glow}px rgba(30, 144, 255, 0.8)
+            `;
         }
-        animate();
-    } catch (err) {
-        console.error('Error accediendo al micrófono:', err);
+
+        requestAnimationFrame(animate);
     }
+
+    animate();
+} catch (err) {
+    console.error('❌ Error accediendo al micrófono para animación:', err);
+}
+
 
     // Exposición para Eel: Texto transcrito
     eel.expose(updateText);
@@ -122,22 +139,33 @@ document.addEventListener("DOMContentLoaded", async function () {
         hablarTexto(respuesta);
     }
 
-    // Preguntas frecuentes
-    async function cargarTopPreguntas() {
-        const top = await eel.get_top_questions()();
-        const lista = document.getElementById("question-list");
-        lista.innerHTML = "";
+// Preguntas frecuentes
+async function cargarTopPreguntas() {
+    const top = await eel.get_top_questions()();
+    const lista = document.getElementById("question-list");
+    lista.innerHTML = "";
 
-        if (top.length === 0) {
-            lista.innerHTML = "<li>No hay preguntas registradas aún.</li>";
-        } else {
-            top.forEach(q => {
-                const li = document.createElement("li");
-                li.textContent = q.question;
-                lista.appendChild(li);
+    if (top.length === 0) {
+        lista.innerHTML = "<li>No hay preguntas registradas aún.</li>";
+    } else {
+        top.forEach(q => {
+            const li = document.createElement("li");
+            li.textContent = q.question;
+
+            // Añadir evento para ejecutar la pregunta al hacer clic
+            li.addEventListener("click", async () => {
+                document.getElementById("texto").innerText = q.question;
+
+                // Llamamos al backend como si fuera voz reconocida
+                const respuesta = await eel.simular_comando(q.question)(); // <-- función que debes exponer
+                updateResponse(respuesta);
             });
-        }
+
+            lista.appendChild(li);
+        });
     }
+}
+
 
     cargarTopPreguntas();
 
@@ -147,4 +175,30 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.getElementById("texto").innerText = "";
         document.getElementById("respuesta").innerText = "";
     });
+
+
+    //boton de micrófono y estado
+    const micBtn = document.getElementById("microfono");
+    let micMuted = false;
+
+    micBtn.addEventListener("click", () => {
+    micMuted = !micMuted;
+
+    if (micMuted) {
+        console.log("🔇 Micrófono silenciado");
+        eel.pausar_escucha();  // Llama a Python
+        micBtn.textContent = "🔇";
+        micBtn.title = "Activar micrófono";
+    } else {
+        console.log("🎙️ Micrófono activado");
+        eel.reanudar_escucha();  // Llama a Python
+        micBtn.textContent = "🎙️";
+        micBtn.title = "Silenciar micrófono";
+    }
+});
+
+
+
+
+
 });
