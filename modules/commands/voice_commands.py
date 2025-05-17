@@ -1,3 +1,4 @@
+
 from modules.commands.sistema import ajustar_nivel
 from modules.commands.aplicaciones import abrir_aplicacion, cerrar_aplicacion
 from modules.commands.humor import contar_chiste, extraer_categoria
@@ -17,9 +18,11 @@ def ejecutar_comando(comando):
 
     match intencion:
         case "abrir_app":
+            db_logger.log_question(comando)
             abrir_aplicacion(entidad)
             return f"Abriendo {entidad}"  # 🔄
         case "cerrar_app":
+            db_logger.log_question(comando)
             cerrar_aplicacion(entidad)
             return f"Cerrando {entidad}"  # 🔄
         case "reproducir_musica":
@@ -38,9 +41,11 @@ def ejecutar_comando(comando):
             return "Ajuste aplicado"  # 🔄
         case "clima":
             if "mañana" in comando:
+                db_logger.log_question(comando)
                 pronostico_ciudad_comando(entidad or "", 1)
                 return "Mostrando pronóstico del clima para mañana"  # 🔄
             else:
+                db_logger.log_question(comando)
                 clima_ciudad_comando(entidad or "")
                 return "Mostrando clima actual"  # 🔄
         case "chiste":
