@@ -2,8 +2,7 @@
 import requests
 import json
 
-MODEL_NAME = "gemma3:4b"  
-
+MODEL_NAME = "gemma3:1b"  
 
 prompt_sistema = (
     "Eres Aurora, un asistente virtual inteligente. Tu función es ayudar al usuario resolviendo dudas, "
@@ -50,7 +49,7 @@ def obtener_respuesta_ia(pregunta):
         return texto
     except Exception as e:
         print("Error al conectarse con Ollama:", e)
-        return "⚠️ No se pudo conectar con el modelo de IA."
+        return "No se pudo conectar con el modelo de IA."
     
     
 def limpiar_respuesta_json(texto):
@@ -156,7 +155,6 @@ def obtener_intencion(texto_usuario):
 
         "--- ENTRADA ACTUAL ---\n"
         f"Usuario: {texto_usuario}\n"
-=======
         "Eres un sistema de clasificación de comandos por voz para un asistente virtual.\n"
         "Tu tarea es identificar con precisión la intención del usuario y la entidad relevante.\n"
         "Debes responder únicamente con dos líneas:\n"

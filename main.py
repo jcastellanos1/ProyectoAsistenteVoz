@@ -35,7 +35,7 @@ def start_listening():
 
 def simular_comando(texto):
     print(f"[Simulación] Ejecutando pregunta: {texto}")
-    return ejecutar_comando(texto)  # Usa tu lógica normal de comandos
+    return ejecutar_comando(texto)  
 
 @eel.expose
 def get_top_questions():
