@@ -23,7 +23,7 @@ def extraer_categoria(comando):
     return "chiste"  # Predeterminado
 
 def contar_chiste(categoria):
-    db_logger.log_question(f"contar chiste de {categoria}")
+    db_logger.log_question(f"contar chiste")
     categoria_ingles = categorias.get(categoria.lower(), "Any")
     
     url = f"https://v2.jokeapi.dev/joke/{categoria_ingles}"

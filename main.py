@@ -33,11 +33,9 @@ def start_listening():
     print("[INFO] start_listening llamado desde JS")  #  DEBUG
     threading.Thread(target=reconocer_voz, args=(ejecutar_comando,), daemon=True).start()
 
-@eel.expose
 def simular_comando(texto):
     print(f"[Simulación] Ejecutando pregunta: {texto}")
     return ejecutar_comando(texto)  
-
 
 @eel.expose
 def get_top_questions():

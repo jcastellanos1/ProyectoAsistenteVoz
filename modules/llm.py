@@ -2,9 +2,7 @@
 import requests
 import json
 
-
 MODEL_NAME = "gemma3:1b"  
-
 
 prompt_sistema = (
     "Eres Aurora, un asistente virtual inteligente. Tu función es ayudar al usuario resolviendo dudas, "
@@ -157,6 +155,23 @@ def obtener_intencion(texto_usuario):
 
         "--- ENTRADA ACTUAL ---\n"
         f"Usuario: {texto_usuario}\n"
+        "Eres un sistema de clasificación de comandos por voz para un asistente virtual.\n"
+        "Tu tarea es identificar con precisión la intención del usuario y la entidad relevante.\n"
+        "Debes responder únicamente con dos líneas:\n"
+        "- Línea 1: una de las siguientes intenciones (sin comillas):\n"
+        "  abrir_app, cerrar_app, reproducir_musica, volumen, brillo, clima, chiste, preguntas_frecuentes, pregunta_ia, desconocido\n"
+        "- Línea 2: la entidad correspondiente (ej: 'Spotify', 'bloc de notas') o 'null' si no aplica.\n"
+        "Ejemplos:\n"
+        "Entrada: abre Spotify\n"
+        "abrir_app\nSpotify\n"
+        "Entrada: cuéntame un chiste\n"
+        "chiste\nnull\n"
+        "Entrada: cuál es el clima en Madrid mañana\n"
+        "clima\nMadrid\n"
+        "Entrada: qué opinas de la inteligencia artificial\n"
+        "pregunta_ia\nnull\n"
+        
+        f"Entrada: {texto_usuario}\n"
         "Respuesta:"
     )
 

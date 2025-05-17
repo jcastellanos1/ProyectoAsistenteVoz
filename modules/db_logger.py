@@ -34,7 +34,7 @@ def obtener_top_preguntas(limit=3):
     conn.close()
     return resultados
 
-def obtener_preguntas_menos_frecuentes(limit=3):
+def obtener_low_preguntas(limit=3):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('SELECT question, count FROM questions ORDER BY count ASC LIMIT ?', (limit,))
