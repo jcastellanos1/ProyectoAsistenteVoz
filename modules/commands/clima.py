@@ -1,18 +1,30 @@
 from modules.weather import get_weather, get_forecast
 from modules.commands.comunes import update_response_with_delay
 
-def clima_comando(city="Santa Lucía Cotzumalguapa, GT"):
-    """Comando para obtener el clima actual de una ciudad."""
-    update_response_with_delay(get_weather(city))
+CIUDAD_POR_DEFECTO = "Santa Lucía Cotzumalguapa, GT"
 
-def pronostico_comando(city="Santa Lucía Cotzumalguapa, GT", days=3):
-    """Comando para obtener el pronóstico de clima para los próximos días."""
-    update_response_with_delay(get_forecast(city, days))
+def clima_comando(city=None):
+    """Comando para obtener el clima actual."""
+    ciudad = city if city else CIUDAD_POR_DEFECTO
+    try:
+        update_response_with_delay(get_weather(ciudad))
+    except Exception as e:
+        update_response_with_delay(f"No se pudo obtener el clima de {ciudad}.")
+        print(f"Error en clima_comando: {e}")
+
+def pronostico_comando(city=None, days=3):
+    """Comando para obtener el pronóstico del clima."""
+    ciudad = city if city else CIUDAD_POR_DEFECTO
+    try:
+        update_response_with_delay(get_forecast(ciudad, days))
+    except Exception as e:
+        update_response_with_delay(f"No se pudo obtener el pronóstico de {ciudad}.")
+        print(f"Error en pronostico_comando: {e}")
 
 def clima_ciudad_comando(city):
-    """Comando para obtener el clima actual de una ciudad específica."""
-    update_response_with_delay(get_weather(city))
+    """Alias para obtener clima actual."""
+    clima_comando(city)
 
 def pronostico_ciudad_comando(city, days=3):
-    """Comando para obtener el pronóstico de clima de una ciudad específica."""
-    update_response_with_delay(get_forecast(city, days))
+    """Alias para obtener pronóstico."""
+    pronostico_comando(city, days)

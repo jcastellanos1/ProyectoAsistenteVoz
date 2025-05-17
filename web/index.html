@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ozuna Assistant</title>
     <link rel="stylesheet" href="styles.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
     <div id="app">
@@ -27,38 +26,36 @@
             <input type="checkbox" class="input" id="theme-toggle">
             <span class="slider"></span>
         </label>
-        <div class="circle"></div>            
+
+        <div class="circle"></div>
+
         <div id="output">
             <h2>Texto Reconocido:</h2>
             <p id="texto"></p>
         </div>
-        
+
         <div id="assistant-response">
             <h2>Respuesta del Asistente:</h2>
-            <p id="respuesta"></p>
+            <p id="respuesta" class="respuesta"></p>
         </div>
 
-        <div id="top-questions" style="padding: 10px; width: 90%; margin: 20px auto; background-color: transparent; border-radius: 10px; color: white;">
-            <h3 style="margin-bottom: 8px;">Preguntas más frecuentes</h3>
-            <ul id="question-list" style="list-style: none; padding-left: 0; margin: 0;"></ul>
+        <div id="top-questions">
+            <h3>Preguntas más frecuentes</h3>
+            <ul id="question-list"></ul>
         </div>
-        
-    
     </div>
 
-   
-    <!-- Elementos de audio para modo claro y oscuro -->
-    <audio id="audio-claro">
-        <source src="audio_claro.mp3" type="audio/mpeg">
-        Tu navegador no soporta el elemento de audio.
-    </audio>
-    <audio id="audio-oscuro">
-        <source src="audio_oscuro.mp3" type="audio/mpeg">
-        Tu navegador no soporta el elemento de audio.
-    </audio>
+    <!-- Botón flotante de limpieza -->
+    <button id="clear" title="Limpiar respuestas">🗑️</button>
+
+    <!-- Botón flotante de microfono -->
+     <button id="microfono" title="silenciar microfono">🎙️</button>
+
+    <!-- Audio modo claro/oscuro -->
+    <audio id="audio-claro"><source src="audio_claro.mp3" type="audio/mpeg"></audio>
+    <audio id="audio-oscuro"><source src="audio_oscuro.mp3" type="audio/mpeg"></audio>
 
     <script type="text/javascript" src="/eel.js"></script>
     <script src="script.js"></script>
 </body>
-
 </html>
