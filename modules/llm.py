@@ -3,7 +3,7 @@ import requests
 import json
 
 
-MODEL_NAME = "gemma3:4b"  
+MODEL_NAME = "gemma3:1b"  
 
 
 prompt_sistema = (
@@ -51,7 +51,7 @@ def obtener_respuesta_ia(pregunta):
         return texto
     except Exception as e:
         print("Error al conectarse con Ollama:", e)
-        return "⚠️ No se pudo conectar con el modelo de IA."
+        return "No se pudo conectar con el modelo de IA."
     
     
 def limpiar_respuesta_json(texto):
