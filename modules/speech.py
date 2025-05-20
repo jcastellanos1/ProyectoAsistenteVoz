@@ -4,9 +4,9 @@ import sys
 import vosk
 import json
 import re
-from dotenv import load_dotenv
 import sounddevice as sd
 import threading
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -28,26 +28,40 @@ is_listening = True
 
 def set_listening_state(state):
     """Controla el estado de escucha del reconocimiento de voz."""
-    print(f"[DEBUG] Estado de escucha: {state}")
     global is_listening
     is_listening = state
+    print(f"[DEBUG] Estado de escucha: {state}")
+
+# Comandos válidos de una sola palabra
+COMANDOS_VALIDOS = {
+    "reproducir", "pausar", "siguiente", "anterior", "que", "suena",
+    "sube", "baja", "clima", "brillo", "volumen", "pon", "abre", "cierra"
+}
+
+# Frases o sonidos comunes que deben ignorarse
+IGNORADOS_EXACTOS = {
+    "eh", "ah", "mm", "aja", "sí", "no", "ok", "vale", "gracias", "ya", "listo", ""
+}
 
 def es_texto_valido(texto):
-    """Filtra entradas irrelevantes como muletillas o frases vacías."""
+    """Evalúa si el texto reconocido debe ser procesado o ignorado."""
     texto = texto.strip().lower()
-    patrones_ignorados = r"^(eh+|ah+|mm+|aja+|sí+|no+|ok+|vale+|gracias+|ya|listo)$"
-    return bool(texto and len(texto.split()) > 1 and not re.fullmatch(patrones_ignorados, texto))
+    if texto in IGNORADOS_EXACTOS:
+        return False
+    if len(texto.split()) > 1:
+        return True
+    return texto in COMANDOS_VALIDOS
 
 def callback(indata, frames, time, status):
-    """Función de callback para capturar audio."""
+    """Callback de audio para capturar sonido."""
     global is_listening
     if status:
         print(status, file=sys.stderr)
     if is_listening:
         q.put(bytes(indata))
-    # No enviar silencio, para evitar confundir al reconocedor
 
 def reconocer_voz(procesar_comando):
+    """Inicia la captura de audio y procesamiento de comandos con Vosk."""
     with sd.RawInputStream(samplerate=16000, blocksize=8000, dtype='int16',
                            channels=1, callback=callback):
         print("Escuchando... Habla ahora.")
@@ -55,13 +69,14 @@ def reconocer_voz(procesar_comando):
 
         while True:
             if not is_listening:
-                sd.sleep(100)  # Pausa breve si está en modo silencio
+                sd.sleep(100)
                 continue
 
             data = q.get()
             if rec_es.AcceptWaveform(data):
                 result = json.loads(rec_es.Result())
-                texto = result.get("text", "")
+                texto = result.get("text", "").strip()
+
                 if es_texto_valido(texto):
                     print(f"Has dicho: {texto}")
                     threading.Thread(target=procesar_comando, args=(texto,), daemon=True).start()
