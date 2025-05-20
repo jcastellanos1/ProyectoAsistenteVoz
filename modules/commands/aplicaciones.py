@@ -4,13 +4,26 @@ import psutil
 from modules.commands.comunes import update_response_with_delay
 from modules import db_logger
 
-# Diccionario de aplicaciones
+# Diccionario de alias para sinónimos o entradas comunes
+ALIAS = {
+    "nota": "bloc de notas",
+    "bloc": "bloc de notas",
+    "musica": "spotify",
+    "música": "spotify",
+    "reproductor de música": "spotify",
+    "chrome": "navegador",
+    "google": "navegador",
+    "explorador de archivos": "explorador",
+    "epic": "epic games"
+}
+
+# Diccionario principal de aplicaciones
 APLICACIONES = {
     "calculadora": {"exe": "calc.exe"},
     "bloc de notas": {"exe": "notepad.exe"},
     "explorador": {"exe": "explorer.exe"},
     "terminal": {"exe": "cmd.exe"},
-    "spotify": {"exe": "spotify.exe"},
+    "spotify": {"exe": "spotify.exe"},  # Usa ruta completa si no está en PATH
     "epic games": {"exe": r"D:\Epic\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe"},
     "navegador": {"exe": r"C:\Program Files\Google\Chrome\Application\chrome.exe"},
     "rola": {"url": "https://www.youtube.com/watch?v=nnrp3drhw0k&t=90"},
@@ -18,7 +31,12 @@ APLICACIONES = {
     "criminal": {"url": "https://www.youtube.com/watch?v=VqEbCxg2bNI&t=80"}
 }
 
+def normalizar_nombre(nombre):
+    nombre = nombre.lower()
+    return ALIAS.get(nombre, nombre)
+
 def abrir_aplicacion(nombre):
+    nombre = normalizar_nombre(nombre)
     db_logger.log_question(f"abrir aplicacion: {nombre}")
     app = APLICACIONES.get(nombre)
     if app:
@@ -32,6 +50,7 @@ def abrir_aplicacion(nombre):
         update_response_with_delay(f"No tengo registrado {nombre}.")
 
 def cerrar_aplicacion(nombre):
+    nombre = normalizar_nombre(nombre)
     db_logger.log_question(f"cerrar aplicacion: {nombre}")
     app = APLICACIONES.get(nombre)
     if app and "exe" in app:

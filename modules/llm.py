@@ -71,111 +71,61 @@ def obtener_intencion(texto_usuario):
         "IMPORTANTE: No agregues texto adicional antes ni después del JSON. Solo responde con el objeto JSON.\n\n"
 
         "--- INSTRUCCIONES ESPECIALES ---\n"
-        "- Si el comando contiene las palabras exactas: pausa, siguiente, anterior, que suena o reproduce (solas), usa 'musica_control'.\n"
-        "- Si el comando tiene 'reproduce' o 'pon' seguido de un nombre de canción, incluso entre comillas, usa 'reproducir_musica'.\n"
-        "- La entidad puede contener varias palabras o estar entre comillas simples o dobles.\n\n"
+        "- Si el usuario dice solo 'reproducir', 'pon música', 'quiero escuchar algo', etc., responde con:\n"
+        "  { \"intencion\": \"musica_control\", \"entidad\": \"reproducir\" }\n"
+        "- Si el usuario dice 'reproduce [nombre de canción]', la intención es 'reproducir_musica' y la entidad es el nombre de la canción.\n"
+        "- Usa 'musica_control' con entidad 'pausar', 'siguiente', 'anterior' o 'que_suena' cuando corresponda.\n"
+        "- Si el usuario pregunta 'qué suena', 'qué está sonando', etc., responde con:\n"
+        "  { \"intencion\": \"musica_control\", \"entidad\": \"que_suena\" }\n"
+        "- Si no comprendes el comando, devuelve:\n"
+        "  { \"intencion\": \"desconocido\", \"entidad\": null }\n\n"
 
         "--- EJEMPLOS ---\n"
-
-        # Control de música
-        "Usuario: siguiente\n"
-        "{ \"intencion\": \"musica_control\", \"entidad\": \"siguiente\" }\n"
+        "Usuario: reproducir\n"
+        "{ \"intencion\": \"musica_control\", \"entidad\": \"reproducir\" }\n"
+        "Usuario: pon música\n"
+        "{ \"intencion\": \"musica_control\", \"entidad\": \"reproducir\" }\n"
+        "Usuario: quiero escuchar algo\n"
+        "{ \"intencion\": \"musica_control\", \"entidad\": \"reproducir\" }\n"
+        "Usuario: ponle pausa\n"
+        "{ \"intencion\": \"musica_control\", \"entidad\": \"pausar\" }\n"
         "Usuario: pausa\n"
         "{ \"intencion\": \"musica_control\", \"entidad\": \"pausar\" }\n"
+        "Usuario: siguiente canción\n"
+        "{ \"intencion\": \"musica_control\", \"entidad\": \"siguiente\" }\n"
         "Usuario: anterior\n"
         "{ \"intencion\": \"musica_control\", \"entidad\": \"anterior\" }\n"
-        "Usuario: que suena\n"
+        "Usuario: qué suena\n"
         "{ \"intencion\": \"musica_control\", \"entidad\": \"que_suena\" }\n"
-        "Usuario: reproduce\n"
-        "{ \"intencion\": \"musica_control\", \"entidad\": \"reproducir\" }\n"
-
-        # Reproducir canciones
-        "Usuario: reproduce la incondicional\n"
-        "{ \"intencion\": \"reproducir_musica\", \"entidad\": \"la incondicional\" }\n"
-        "Usuario: pon \"La incondicional\"\n"
-        "{ \"intencion\": \"reproducir_musica\", \"entidad\": \"la incondicional\" }\n"
-        "Usuario: reproduce 'volveré'\n"
+        "Usuario: qué canción está sonando\n"
+        "{ \"intencion\": \"musica_control\", \"entidad\": \"que_suena\" }\n"
+        "Usuario: reproduce criminal\n"
+        "{ \"intencion\": \"reproducir_musica\", \"entidad\": \"criminal\" }\n"
+        "Usuario: pon 'volveré'\n"
         "{ \"intencion\": \"reproducir_musica\", \"entidad\": \"volveré\" }\n"
-        "Usuario: pon a dónde vamos a parar\n"
-        "{ \"intencion\": \"reproducir_musica\", \"entidad\": \"a dónde vamos a parar\" }\n"
-        "Usuario: pon me haces falta\n"
-        "{ \"intencion\": \"reproducir_musica\", \"entidad\": \"me haces falta\" }\n"
-
-        # Abrir/cerrar aplicaciones
         "Usuario: abre Spotify\n"
         "{ \"intencion\": \"abrir_app\", \"entidad\": \"spotify\" }\n"
-        "Usuario: abrir bloc de notas\n"
-        "{ \"intencion\": \"abrir_app\", \"entidad\": \"bloc de notas\" }\n"
         "Usuario: cerrar Spotify\n"
         "{ \"intencion\": \"cerrar_app\", \"entidad\": \"spotify\" }\n"
-        "Usuario: cierra el navegador\n"
-        "{ \"intencion\": \"cerrar_app\", \"entidad\": \"navegador\" }\n"
-
-        # Volumen y brillo
         "Usuario: sube el volumen al 50 porciento\n"
         "{ \"intencion\": \"volumen\", \"entidad\": null }\n"
-        "Usuario: baja el volumen\n"
-        "{ \"intencion\": \"volumen\", \"entidad\": null }\n"
-        "Usuario: subir brillo\n"
+        "Usuario: baja el brillo\n"
         "{ \"intencion\": \"brillo\", \"entidad\": null }\n"
-        "Usuario: baja el brillo al 30\n"
-        "{ \"intencion\": \"brillo\", \"entidad\": null }\n"
-
-        # Clima
-        "Usuario: clima mañana\n"
-        "{ \"intencion\": \"clima\", \"entidad\": null }\n"
-        "Usuario: clima hoy\n"
-        "{ \"intencion\": \"clima\", \"entidad\": null }\n"
-        "Usuario: clima\n"
-        "{ \"intencion\": \"clima\", \"entidad\": null }\n"
-        "Usuario: cuál es el clima\n"
-        "{ \"intencion\": \"clima\", \"entidad\": null }\n"
         "Usuario: clima en Guatemala\n"
         "{ \"intencion\": \"clima\", \"entidad\": \"guatemala\" }\n"
-        "Usuario: qué clima hará en Ciudad de Guatemala\n"
-        "{ \"intencion\": \"clima\", \"entidad\": \"ciudad de guatemala\" }\n"
-
-        # Chistes
-        "Usuario: cuéntame un chiste\n"
-        "{ \"intencion\": \"chiste\", \"entidad\": null }\n"
         "Usuario: cuéntame un chiste de miedo\n"
         "{ \"intencion\": \"chiste\", \"entidad\": \"miedo\" }\n"
-        "Usuario: dime un chiste navideño\n"
-        "{ \"intencion\": \"chiste\", \"entidad\": \"navidad\" }\n"
-
-        # Preguntas frecuentes y generales
         "Usuario: qué puedes hacer\n"
-        "{ \"intencion\": \"preguntas_frecuentes\", \"entidad\": null }\n"
-        "Usuario: para qué sirves\n"
         "{ \"intencion\": \"preguntas_frecuentes\", \"entidad\": null }\n"
         "Usuario: qué sabes de python\n"
         "{ \"intencion\": \"pregunta_ia\", \"entidad\": null }\n"
-        "Usuario: cómo funciona la inteligencia artificial\n"
-        "{ \"intencion\": \"pregunta_ia\", \"entidad\": null }\n"
+        "Usuario: hola\n"
+        "{ \"intencion\": \"desconocido\", \"entidad\": null }\n"
 
         "--- ENTRADA ACTUAL ---\n"
         f"Usuario: {texto_usuario}\n"
-        "Eres un sistema de clasificación de comandos por voz para un asistente virtual.\n"
-        "Tu tarea es identificar con precisión la intención del usuario y la entidad relevante.\n"
-        "Debes responder únicamente con dos líneas:\n"
-        "- Línea 1: una de las siguientes intenciones (sin comillas):\n"
-        "  abrir_app, cerrar_app, reproducir_musica, volumen, brillo, clima, chiste, preguntas_frecuentes, pregunta_ia, desconocido\n"
-        "- Línea 2: la entidad correspondiente (ej: 'Spotify', 'bloc de notas') o 'null' si no aplica.\n"
-        "Ejemplos:\n"
-        "Entrada: abre Spotify\n"
-        "abrir_app\nSpotify\n"
-        "Entrada: cuéntame un chiste\n"
-        "chiste\nnull\n"
-        "Entrada: cuál es el clima en Madrid mañana\n"
-        "clima\nMadrid\n"
-        "Entrada: qué opinas de la inteligencia artificial\n"
-        "pregunta_ia\nnull\n"
-        
-        f"Entrada: {texto_usuario}\n"
         "Respuesta:"
     )
-
-
 
     datos = {
         "model": MODEL_NAME,
@@ -201,6 +151,18 @@ def obtener_intencion(texto_usuario):
         entidad = parsed.get("entidad")
         entidad = None if entidad in [None, "null"] else entidad
 
+        # Validación final (por si el modelo devuelve una intención no válida)
+        INTENCIONES_VALIDAS = {
+            "abrir_app", "cerrar_app", "reproducir_musica",
+            "musica_control", "volumen", "brillo",
+            "clima", "chiste", "preguntas_frecuentes",
+            "pregunta_ia", "desconocido"
+        }
+
+        if intencion not in INTENCIONES_VALIDAS:
+            print(f"❌ Intención inválida recibida: {intencion}")
+            return "desconocido", None
+
         return intencion, entidad
 
     except json.JSONDecodeError as je:
@@ -210,3 +172,4 @@ def obtener_intencion(texto_usuario):
         print("❌ Error al clasificar intención:", e)
 
     return "desconocido", None
+
