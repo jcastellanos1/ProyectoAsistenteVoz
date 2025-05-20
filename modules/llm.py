@@ -2,7 +2,7 @@
 import requests
 import json
 
-MODEL_NAME = "gemma3:1b"  
+MODEL_NAME = "gemma3:4b"  
 
 prompt_sistema = (
     "Eres Aurora, un asistente virtual inteligente. Tu función es ayudar al usuario resolviendo dudas, "
