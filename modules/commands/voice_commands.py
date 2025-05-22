@@ -3,10 +3,19 @@ from modules.commands.aplicaciones import abrir_aplicacion, cerrar_aplicacion
 from modules.commands.humor import contar_chiste
 from modules.commands.clima import clima_ciudad_comando, pronostico_ciudad_comando
 from modules.commands.musica import controlar_musica, spotify
-from modules.commands.comunes import responder_preguntas_frecuentes, update_response_with_delay
+from modules.commands.comunes import  update_response_with_delay
 import eel
 from modules.db_logger import log_question
 from modules.llm import obtener_respuesta_ia, obtener_intencion
+from modules.commands.sistema import (
+    ajustar_nivel,
+    subir_volumen,
+    bajar_volumen,
+    subir_brillo,
+    bajar_brillo,
+    ajustar_volumen,
+    ajustar_brillo
+)
 
 # Lista de entidades reservadas que no deben usarse como nombre de canción
 ENTIDADES_CONTROL = ["que_suena", "pausar", "reproducir", "siguiente", "anterior"]
@@ -57,13 +66,22 @@ def ejecutar_comando(comando):
                 return "¿Qué acción musical deseas realizar? (pausar, siguiente, etc.)"
 
         case "volumen":
-            ajustar_nivel(comando)
+            if entidad == "subir":
+                       subir_volumen()
+            elif entidad == "bajar":
+                     bajar_volumen()
+            else:
+                        ajustar_nivel(comando)
             return "Comando de volumen procesado."
-
         case "brillo":
-            ajustar_nivel(comando)
-            return "Comando de brillo procesado."
-
+            if entidad == "subir":
+                subir_brillo()
+            elif entidad == "bajar":
+                bajar_brillo()
+            else:
+                ajustar_nivel(comando)
+                return "Comando de brillo procesado."
+            
         case "clima":
             if entidad:
                 if "mañana" in comando.lower():
