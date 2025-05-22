@@ -1,5 +1,5 @@
 import requests
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 from modules import db_logger
 from modules.commands.comunes import update_response_with_delay
 
@@ -44,7 +44,9 @@ def contar_chiste(categoria):
         return mensaje_error
 
 def traducir_al_espanol(texto):
-    """Traduce un texto de inglés a español."""
-    translator = Translator()
-    traduccion = translator.translate(texto, src='en', dest='es')
-    return traduccion.text
+    """Traduce un texto de inglés a español usando deep-translator."""
+    try:
+        return GoogleTranslator(source='en', target='es').translate(texto)
+    except Exception as e:
+        print("❌ Error al traducir:", e)
+        return texto  # Devuelve el texto original si falla la traducción
